@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+
+# Node (only used by the /speckit.implement lab step)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Python / uv (the Specify CLI is Python-based)
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Throwaway lab scaffolding produced by the walkthrough (not part of these reference docs)
+booknook/
+.specify/
