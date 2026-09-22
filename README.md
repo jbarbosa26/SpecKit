@@ -1,109 +1,125 @@
 # Spec-Driven Development with GitHub Spec Kit
 
-A self-contained learning sample that explains **Spec-Driven Development (SDD)** and
-**[GitHub Spec Kit](https://github.com/github/spec-kit)**, then walks you through it
-hands-on. The workflow is **agent-agnostic**: the lab covers **two scenarios** — **with
-GitHub Copilot** (VS Code) and **without Copilot** (any other supported agent, e.g.
-Claude Code or Gemini CLI). Use it to understand the methodology, run a guided lab end
-to end, and adopt SDD on a project you already have.
+An independent, security-focused workshop for learning **spec-driven development
+(SDD)** with **GitHub Spec Kit 1.0.1**. Work from intent to reviewed requirements,
+architecture, tasks, implementation, and evidence, then repeat the loop for a
+controlled change. AI-generated artifacts are proposals to evaluate, not proof
+that a system is correct, secure, or ready for production.
 
-Spec-Driven Development flips the traditional model: instead of treating specifications
-as disposable scaffolding, the **specification becomes the primary, executable artifact**
-and code becomes its generated expression. Spec Kit is the open-source toolkit (the
-`specify` CLI plus a set of `/speckit.*` commands) that operationalizes SDD inside your
-repository and your AI coding agent.
+**Workshop baseline reviewed: September 22, 2026.** Spec Kit is pinned to the
+[v1.0.1 release](https://github.com/github/spec-kit/releases/tag/v1.0.1), source
+commit `9118ed15a0ba65053469a94c560ea5d233f75884`. This is the workshop's chosen
+version, **not a claim that 1.0.1 is the latest release**. Current product
+documentation can describe newer behavior.
 
-> This is a **documentation/teaching** sample. There is nothing to build or run here —
-> the deliverables are the guides below plus a set of illustrative example artifacts.
-> You install Spec Kit and do the hands-on work in your own scratch project.
+## Start here
 
-## Who this is for
-
-- Engineers and teams evaluating or adopting SDD — with GitHub Copilot or another supported AI agent.
-- Anyone who wants a concrete, command-by-command walkthrough of Spec Kit.
-- Teams with an **existing** codebase who want to retrofit SDD incrementally.
-
-## What's inside
-
-| Doc | What it covers |
+| Document | Use it for |
 | --- | --- |
-| [docs/01 — What Is Spec-Driven Development?](./docs/01-what-is-spec-driven-development.md) | The methodology: the "power inversion," core principles, development phases, and when to use SDD. Start here for the *why*. |
-| [docs/02 — Spec Kit Toolkit Breakdown](./docs/02-spec-kit-breakdown.md) | The toolkit: installing the `specify` CLI, the `/speckit.*` commands, the artifacts it produces, on-disk layout, and the **GitHub Copilot integration**. Start here for the *what*. |
-| [docs/03 — Walkthrough & Hands-On Lab](./docs/03-walkthrough-and-lab.md) | A guided, ~45–60 min lab that takes the example app ("BookNook") from constitution → spec → plan → tasks → implement, covering **two scenarios** (with GitHub Copilot and without Copilot, e.g. Claude Code / Gemini CLI). Start here for the *how*. |
-| [docs/04 — Adapting an Existing Project](./docs/04-adapting-existing-projects.md) | A practical brownfield guide: initialize Spec Kit in place, encode existing conventions in a constitution, and roll SDD out feature by feature. |
-| [examples/](./examples/) | Illustrative SDD artifacts for the lab's BookNook example — a sample [constitution](./examples/constitution.md), [spec](./examples/spec.md), [plan](./examples/plan.md), and [tasks](./examples/tasks.md). |
+| [Student prerequisites and quick reference](./docs/02-spec-kit-breakdown.md) | Complete before attending: tools, agent access, safe permissions, pinned installation, and a readiness check. |
+| [What is spec-driven development?](./docs/01-what-is-spec-driven-development.md) | Understand the method, its limits, and the architect's review responsibilities. |
+| [Hands-on lab](./docs/03-walkthrough-and-lab.md) | Follow **390 minutes (6.5 hours)** of guided hands-on exercises, excluding prework and breaks. |
+| [Adapting an existing project](./docs/04-adapting-existing-projects.md) | Apply SDD incrementally, upgrade safely, and assess the gap to production/cloud use. |
+| [Reference artifacts](./examples/README.md) | Compare your constitution, specification, plan, and tasks with aligned examples; do not substitute them for your own decisions. |
 
-Suggested reading order: **01 → 02 → 03 → 04**. If you just want to get your hands
-dirty, jump to the [hands-on lab](./docs/03-walkthrough-and-lab.md) and refer back to
-01/02 as needed.
+Before the workshop, complete the prerequisite brief. During the workshop, keep
+the lab open alongside your editor. Read the brownfield guide after completing
+the lab or when applying the method to an existing codebase.
 
-## Prerequisites
+## What you will build and learn
 
-To do the hands-on lab you'll need:
+**BookNook** is a small, single-user reading-list application. Add fictional books,
+persist them in browser storage, change reading status, and filter the list.
+Then use an explicit change request to add search without breaking the approved
+baseline.
 
-- **[Python 3.11+](https://www.python.org/downloads/)** (Git recommended but optional — used only when Spec Kit's git integration is enabled)
-- **[uv](https://docs.astral.sh/uv/)** (recommended) or **[pipx](https://pipx.pypa.io/)** to install the Specify CLI
-- **A supported AI coding agent** — **[GitHub Copilot](https://github.com/features/copilot)** in **VS Code** (Scenario A), or another supported agent such as **Claude Code** or **Gemini CLI** (Scenario B)
-- **[Node.js 20 LTS](https://nodejs.org/)** — only needed for the `/speckit.implement` step of the lab
+The required path uses **GitHub Copilot in VS Code**, Spec Kit's default
+**skills** integration, **Node.js 24 LTS** on its latest security patch, plain
+HTML/CSS/JavaScript, and Node's built-in test runner. No third-party JavaScript
+packages, native database toolchains, Azure subscription, deployment, or API
+keys are needed for the application. Your approved coding agent still requires
+network access and an appropriate account/request allowance; usage may cost
+money. The app itself runs at `http://127.0.0.1:4173` with fictional local data.
 
-Reading the conceptual docs (01, 02, 04) requires none of the above.
+You will practice requirements clarification, threat modeling, architecture
+tradeoffs, test-first implementation, negative/security testing, accessibility
+checks, requirements-to-evidence traceability, and change control. The time
+allocations are **facilitator budgets**, not a guarantee of agent response speed
+or a production-readiness certification.
 
-## Quick start
+This repository contains teaching documents, not a completed application.
+Create BookNook in a **separate scratch directory** as instructed in the lab.
+There is no application build or test suite to run in this repository.
 
-```bash
-# 1. Install the Specify CLI (replace vX.Y.Z with the latest release tag:
-#    https://github.com/github/spec-kit/releases)
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+## Version-correct command flow
 
-# 2. Scaffold a new project, wired up for your agent via --integration:
-#    Scenario A — with GitHub Copilot:
-specify init booknook --integration copilot
-#    Scenario B — without Copilot (e.g. Claude Code, or gemini):
-#    specify init booknook --integration claude
-cd booknook
+Install the verified 1.0.1 source using `uv`, after completing the prerequisites.
+This source-commit pin avoids relying on a release tag remaining unchanged:
 
-# 3. Drive the workflow with the SAME slash commands, in your agent:
-#    Scenario A: VS Code GitHub Copilot Chat (agent mode)
-#    Scenario B: the `claude` (or `gemini`) CLI launched inside the project
-#    /speckit.constitution  ->  /speckit.specify  ->  /speckit.plan
-#    ->  /speckit.tasks      ->  /speckit.implement
+```text
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+specify version
 ```
 
-> On Windows PowerShell the commands are identical — for the final step use `Set-Location booknook` (or `cd booknook`, which also works).
+Initialize a **new** scratch project using the shell-specific instructions in
+the lab. Spec Kit 1.0.1 bundles its core templates with the installed CLI. Its
+core does **not** initialize Git or automatically create feature branches; the
+lab handles Git explicitly without installing extensions.
 
-> The workflow is identical across agents — only the `--integration <key>`, which tool
-> you launch, and the per-agent command syntax differ. Run `specify integration list` to
-> see every supported agent. See the lab's
-> [Choose your agent](./docs/03-walkthrough-and-lab.md#part-1--initialize-the-project)
-> step for a full comparison table.
+The following are **agent-chat commands, not terminal commands**:
 
-The full, explained version of these steps lives in the
-[Walkthrough & Hands-On Lab](./docs/03-walkthrough-and-lab.md).
-
-## The Spec Kit command flow
-
-| Step | Command | Produces |
+| Step | Default Copilot skill | Result to review |
 | --- | --- | --- |
-| 1. Principles | `/speckit.constitution` | `.specify/memory/constitution.md` |
-| 2. Specify (what/why) | `/speckit.specify` | `specs/<###-feature>/spec.md` in a new numbered feature directory (matching git branch optional) |
-| 3. Clarify *(optional)* | `/speckit.clarify` | resolved ambiguities recorded in the spec |
-| 4. Plan (how) | `/speckit.plan` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
-| 5. Tasks | `/speckit.tasks` | `tasks.md` (dependency-ordered, `[P]` = parallel-safe) |
-| 6. Analyze *(optional)* | `/speckit.analyze` | cross-artifact consistency & coverage report |
-| 7. Implement | `/speckit.implement` | working code that satisfies the tasks |
-| 8. Converge *(optional)* | `/speckit.converge` | assesses the codebase against spec/plan/tasks and appends remaining work as new tasks |
+| Govern | `/speckit-constitution` | `.specify/memory/constitution.md` |
+| Specify | `/speckit-specify` | `specs/<number>-<feature>/spec.md` |
+| Clarify | `/speckit-clarify` | Decisions recorded in the active specification |
+| Plan | `/speckit-plan` | Plan and relevant research, model, contract, and quickstart artifacts |
+| Review requirements | `/speckit-checklist` | Requirements-quality questions, not application tests |
+| Decompose | `/speckit-tasks` | Dependency-ordered tasks |
+| Analyze | `/speckit-analyze` | Cross-artifact findings; humans resolve blocking findings |
+| Implement | `/speckit-implement` | Reviewed, incremental code and test changes |
+| Assess remaining work | `/speckit-converge` | Additional remediation tasks if gaps remain, not automatic code repairs |
 
-Optional extras: `/speckit.checklist` (quality checklists — "unit tests for English")
-and `/speckit.taskstoissues` (push tasks to GitHub Issues). See
-[docs/02](./docs/02-spec-kit-breakdown.md) for details.
+Clarify, checklist, and analyze are optional toolkit capabilities but **required
+review gates in this workshop**. Converge is a supplemental assessment, not a
+replacement for running tests.
 
-## References
+For 1.0.1, Copilot's default files live in
+`.github/skills/speckit-<name>/SKILL.md`. The older dotted `/speckit.specify`
+syntax belongs to Copilot's explicitly selected **commands** mode, not this
+lab's default. Claude's default skills also use hyphens; Gemini uses dotted
+commands. See the [integration reference](./docs/02-spec-kit-breakdown.md#cli-reference)
+before switching agents. The methodology transfers; syntax, permissions, and
+generated files are agent-specific.
 
-- [GitHub Spec Kit repository](https://github.com/github/spec-kit)
-- [Spec Kit documentation](https://github.github.io/spec-kit/)
-- [Spec-Driven Development methodology deep-dive](https://github.com/github/spec-kit/blob/main/spec-driven.md)
-- [Supported AI coding agent integrations](https://github.github.io/spec-kit/reference/integrations.html)
-- [GitHub Copilot documentation](https://docs.github.com/en/copilot)
+## Security and scope
+
+Use an ordinary user account, a disposable browser profile, fictional data, and
+manual tool approvals. Inspect generated scripts and diffs before execution.
+Do not enable blanket auto-approval, expose the local server, connect production
+repositories or credentials, install unreviewed extensions/MCP servers, or
+publish tasks with `/speckit-taskstoissues` during the lab. Ignore rules do not
+prevent an AI agent from reading files.
+
+The material applies [Microsoft Zero Trust principles](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-overview)
+and the [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/)
+to engineering decisions. It is **not official Microsoft or GitHub training**.
+Local browser storage and a loopback server are deliberate teaching boundaries,
+not substitutes for production identity, authorization, resilient storage, or
+operational controls.
+
+## Source references
+
+For release-specific behavior, prefer frozen source over moving documentation:
+
+- [Spec Kit 1.0.1 source](https://github.com/github/spec-kit/tree/9118ed15a0ba65053469a94c560ea5d233f75884)
+  and [core CLI reference](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/docs/reference/core.md).
+- [1.0.1 Copilot integration](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/src/specify_cli/integrations/copilot/__init__.py)
+  for skills defaults and legacy commands behavior.
+- [Current Spec Kit documentation](https://github.github.io/spec-kit/),
+  [VS Code agent security](https://code.visualstudio.com/docs/agents/run/security),
+  and [Node.js support status](https://nodejs.org/en/about/previous-releases)
+  are live references. Recheck them before teaching a future cohort.
 
 ## License
 

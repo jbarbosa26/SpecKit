@@ -1,233 +1,188 @@
-# Spec Kit Toolkit Breakdown
+# Student prerequisites and Spec Kit 1.0.1 quick reference
 
-[Spec Kit](https://github.com/github/spec-kit) is an open-source toolkit from GitHub for **Spec-Driven Development (SDD)**. It is installed as the `specify` command-line interface (the *Specify CLI*) and scaffolds the SDD workflow directly into your repository so your AI coding agent can turn intent into structured specifications, plans, tasks, and working code. Spec Kit is **agent-agnostic**: it supports **30+ AI coding agents** (34 named integrations plus a `generic` bring-your-own key). This document uses **GitHub Copilot** as the primary example, but the same workflow applies to Claude Code, Gemini CLI, Codex CLI, Cursor, and many others — the only difference is which per-agent files get generated. Run `specify integration list` to see every supported agent, or consult the [official integrations reference](https://github.github.io/spec-kit/reference/integrations.html). This document is the *tooling* reference: how to install it, the commands it adds, the artifacts it produces, the on-disk layout, and how it plugs into your agent. The methodology and theory behind SDD live in the sibling doc [`01-what-is-spec-driven-development.md`](./01-what-is-spec-driven-development.md).
+**Complete this brief before the workshop.** Setup is not part of the
+390-minute hands-on lab. No Azure subscription or application API key is
+required. You do need internet access and an organization-approved AI coding
+agent with sufficient usage allowance.
 
-## Prerequisites
+[Prework](#prework-start-here) | [Readiness check](#readiness-check) |
+[CLI reference](#cli-reference) | [Start the lab](./03-walkthrough-and-lab.md)
 
-- **Operating system:** Linux, macOS, or Windows. Windows is fully supported — you can use `uv` and run `specify` from PowerShell.
-- **Python 3.11+** — the Specify CLI runtime.
-- **Git** — recommended (optional; required for the git extension / feature branches). Spec Kit can version specs and track artifacts in version control, and can create a feature branch per feature when its git integration is enabled — but git is no longer strictly required to run the workflow.
-- **[`uv`](https://docs.astral.sh/uv/)** for package management (recommended), or **`pipx`** for persistent installs.
-- **A supported AI coding agent.** Spec Kit supports **30+ agents** — for example `copilot` (GitHub Copilot), `claude` (Claude Code), `gemini` (Gemini CLI), `codex` (Codex CLI), and `cursor-agent` (Cursor). Run `specify integration list` to discover them all.
+## Prework: start here
 
-## Install the Specify CLI
+### 1. Bring the right tools and access
 
-Install persistently with `uv`, replacing `vX.Y.Z` with the latest release tag from the [releases page](https://github.com/github/spec-kit/releases):
-
-> Shell commands below are identical on macOS/Linux (bash/zsh) and Windows PowerShell, except where a separate PowerShell block is shown explicitly.
-
-```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
-```
-
-> On Windows/PowerShell, ensure uv's tool bin directory is on your `PATH` so the `specify` command resolves. You can verify the install with `specify --help`; if the command is not found, run `uv tool update-shell` and restart PowerShell.
-
-To run a single command without a persistent install (ephemeral, one-shot):
-
-```bash
-uvx --from git+https://github.com/github/spec-kit.git specify <command>
-```
-
-> **Caution:** always install from the official Git source above. There is no official Spec Kit package on PyPI — a `specify-cli` published to PyPI is unaffiliated with GitHub Spec Kit.
-
-### Self-management
-
-The CLI can check for and apply its own updates:
-
-```bash
-specify self check                 # read-only update check
-specify self upgrade --dry-run     # preview what would change
-specify self upgrade               # upgrade to the latest release
-specify self upgrade --tag vX.Y.Z  # upgrade to a specific tag
-```
-
-## Initialize a project
-
-Create a new project pre-wired for your chosen agent. Copilot is used here as the primary example, but you can swap `copilot` for any supported agent key (e.g. `claude`, `gemini`, `codex`, `cursor-agent`):
-
-```bash
-specify init <project-name> --integration copilot
-cd <project-name>
-```
-
-To initialize **in the current directory**, use either form:
-
-```bash
-specify init .
-specify init --here
-```
-
-Add `--force` to merge Spec Kit into a non-empty directory:
-
-```bash
-specify init --here --force
-```
-
-Useful flags:
-
-- `--integration <key>` — choose the AI agent integration (e.g. `copilot`, `claude`, `gemini`, `codex`, `cursor-agent`). Run `specify integration list` to see all supported keys. In non-interactive sessions the default integration is `copilot`. For a bring-your-own agent, use `--integration generic --integration-options="--commands-dir <path>"`.
-- `--ignore-agent-tools` — skip checking for an installed agent (useful in CI or when the agent runs elsewhere).
-- `--integration-options="--skills"` — enable skills mode for agents that support it (see the agent-integration section below).
-- `--script sh|ps` — choose the helper-script flavor (also accepts `py`).
-
-## The command workflow
-
-After initialization, the workflow runs as slash commands inside your AI agent.
-
-| Command | Purpose |
+| Requirement | Preparation |
 | --- | --- |
-| `/speckit.constitution` | Create/update project governing principles (writes `.specify/memory/constitution.md`) |
-| `/speckit.specify` | Define WHAT to build (requirements + user stories); creates `specs/<###-name>/spec.md` in a new numbered feature directory (a matching feature branch is created by Spec Kit's git integration when git is present) |
-| `/speckit.clarify` | (Optional, recommended before plan; *formerly `/quizme`*) structured Q&A to remove ambiguity; records a Clarifications section |
-| `/speckit.plan` | Provide tech stack/architecture; generates plan + design docs |
-| `/speckit.tasks` | Generate an actionable, dependency-ordered `tasks.md` |
-| `/speckit.analyze` | (Optional) cross-artifact consistency & coverage check (after tasks, before implement) |
-| `/speckit.checklist` | (Optional) generate quality checklists ("unit tests for English") |
-| `/speckit.implement` | Execute the tasks to build the feature |
-| `/speckit.converge` | Assess the codebase against the spec/plan/tasks and append remaining work as new tasks |
-| `/speckit.taskstoissues` | (Optional) convert tasks into GitHub issues |
+| Basic skills | Navigate folders, edit text, run terminal commands, and read basic JavaScript. SDD experience is not required. |
+| Git | Install a current approved [Git release](https://git-scm.com/downloads). Git is required for this lab's review/checkpoint workflow, even though Spec Kit core can work without it. |
+| Python | Install a supported, patched [Python version](https://www.python.org/downloads/), **3.11 or newer**, the CLI's minimum. |
+| uv | Install [uv from the official instructions](https://docs.astral.sh/uv/getting-started/installation/) using an approved package manager or reviewed release binary. |
+| Node.js | Install the latest patched **24.x LTS** from [Node.js](https://nodejs.org/en/download/). Node 20 is end-of-life; do not use it for this workshop. npm is included. |
+| Editor and agent | Install current approved [VS Code](https://code.visualstudio.com/docs/setup/setup-overview), sign in to GitHub Copilot, and confirm that Chat **agent mode** and workspace skills are allowed by your organization's policy. |
+| Shell and browser | Windows: [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows). macOS/Linux: Bash. Use a current browser with DevTools and a disposable profile for fictional lab data. |
+| Listener inspection | Confirm access to `Get-NetTCPConnection` (Windows), `ss` (Linux), or `lsof` (macOS), without elevated privileges. The lab checks the actual server bind address, not just whether a page loads. |
 
-### Required path: constitution → specify → plan → tasks → implement
+Use your employer's approved installation and certificate/proxy configuration.
+Do not pipe a downloaded script directly into a shell, bypass execution policy,
+disable TLS verification, or run the workshop as administrator. If installation
+is blocked by policy, contact the instructor/IT before the session.
 
-- **`/speckit.constitution`** establishes the non-negotiable principles (architecture rules, quality bars, conventions) that constrain every later phase.
-- **`/speckit.specify`** captures the *what* and *why* — user stories and requirements — and creates `specs/<###-name>/spec.md` in a new numbered feature directory (a matching feature branch is created by Spec Kit's git integration when git is present).
-- **`/speckit.plan`** turns the spec into the *how*: tech stack, architecture, and supporting design docs (research, data model, contracts, quickstart).
-- **`/speckit.tasks`** decomposes the plan into a dependency-ordered `tasks.md`. Tasks tagged `[P]` are parallel-safe and may be executed concurrently.
-- **`/speckit.implement`** executes the tasks in order to build the feature.
+Check that your Copilot account has the required capabilities and enough
+requests for an extended lab. A free plan's allowance might not be sufficient.
+Org policies can disable agents even when basic chat works. Confirm sign-in
+through the product UI; never put a token into a prompt, source file, screenshot,
+or command-line argument. Alternative agents require their own approved
+accounts and permissions; they do not remove usage costs or data-handling rules.
 
-### Optional quality commands
+### 2. Install the pinned workshop toolkit
 
-- **`/speckit.clarify`** (formerly `/quizme`) runs a structured Q&A before planning to drive out ambiguity and records the answers in a Clarifications section.
-- **`/speckit.analyze`** performs a cross-artifact consistency and coverage check after tasks and before implementing.
-- **`/speckit.checklist`** generates quality checklists — "unit tests for English" — to validate the specification itself.
-- **`/speckit.converge`** assesses the existing codebase against the spec, plan, and tasks and appends any remaining work as new tasks — useful for closing the gap between what's built and what's specified.
-- **`/speckit.taskstoissues`** converts the generated tasks into GitHub issues for tracking.
-
-## Artifacts & on-disk layout
-
-Spec Kit writes a small set of files that are the **source of truth** for the feature. A typical layout after initializing and specifying one feature:
+**Terminal, any directory; the following commands work in PowerShell and Bash:**
 
 ```text
-your-project/
-├── .specify/
-│   ├── memory/
-│   │   └── constitution.md          # governing principles
-│   ├── scripts/                     # bash and/or PowerShell helper scripts
-│   ├── templates/                   # spec/plan/tasks/constitution templates
-│   ├── integration.json             # active integration record
-│   ├── integration-catalogs.yml     # available integration catalogs
-│   └── init-options.json            # options captured at init time
-└── specs/
-    └── 001-example-feature/
-        ├── spec.md                  # feature specification (WHAT/WHY)
-        ├── plan.md                  # implementation plan (HOW)
-        ├── research.md              # Phase 0 research/decisions
-        ├── data-model.md            # entities/schemas
-        ├── contracts/               # API/contract specs
-        ├── quickstart.md            # key validation scenarios
-        └── tasks.md                 # executable, dependency-ordered tasks
+git --version
+uv --version
+node --version
+npm --version
 ```
 
-> Per-agent command and context files (e.g. `.github/agents/…` for Copilot, `.claude/…` and `CLAUDE.md` for Claude, `.gemini/…` and `GEMINI.md` for Gemini) are generated alongside `.specify/` — see [the agent-integration section](#agent-integration-copilot-and-beyond) below.
+Check Python with `python --version` on Windows or `python3 --version` on
+macOS/Linux. If a command is missing, complete the corresponding installation
+and open a fresh terminal before continuing.
 
-| Artifact | Role |
-| --- | --- |
-| `.specify/memory/constitution.md` | Project governing principles that constrain all phases |
-| `specs/<###-feature-name>/spec.md` | Feature specification — the WHAT and WHY |
-| `specs/<###-feature-name>/plan.md` | Implementation plan — the HOW (tech stack/architecture) |
-| `specs/<###-feature-name>/research.md` | Phase 0 research and key decisions |
-| `specs/<###-feature-name>/data-model.md` | Entities and schemas |
-| `specs/<###-feature-name>/contracts/` | API/contract specifications |
-| `specs/<###-feature-name>/quickstart.md` | Key validation scenarios |
-| `specs/<###-feature-name>/tasks.md` | Executable, dependency-ordered tasks (`[P]` = parallel-safe) |
-| `.specify/scripts/` | Bash and/or PowerShell automation used by the commands |
-| `.specify/templates/` | Templates for spec, plan, tasks, and constitution |
+Install the verified **Spec Kit 1.0.1** source:
 
-## Agent integration (Copilot and beyond)
+```text
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+specify version
+specify --help
+specify check
+```
 
-Because Spec Kit is agent-agnostic, `specify init --integration <key>` generates the *same* workflow for every agent — only the per-agent command and context files differ. All integrations also generate the shared `.specify/` infrastructure: `.specify/memory/constitution.md`, `.specify/scripts/{bash|powershell}/…`, `.specify/templates/…`, and the integration config files (`integration.json`, `integration-catalogs.yml`, `init-options.json`).
+**Expected:** `specify version` identifies CLI version `1.0.1`. The commit is the
+source behind the [1.0.1 release](https://github.com/github/spec-kit/releases/tag/v1.0.1).
+The source pin includes bundled templates, but does not lock every transitive
+Python dependency, editor version, model, or generated output.
 
-### GitHub Copilot (`--integration copilot`)
+`specify check` reports tool availability, not provenance, account entitlement,
+security, or workshop readiness. Missing unrelated agents are not a reason to
+install every tool it lists. VS Code Copilot is the guided path; the separate
+Copilot CLI is not required.
 
-Running `specify init --integration copilot` wires the project for GitHub Copilot and generates:
+If `specify` is not found after a successful installation:
 
-- **`.github/agents/speckit.*.agent.md`** — the primary command definition files, invoked as `/speckit.*` in **VS Code GitHub Copilot Chat** (agent mode).
-- **`.github/prompts/speckit.*.prompt.md`** — companion prompt files for the same commands.
-- **`.vscode/settings.json`** — configured so prompt files are enabled/recommended.
-- With `--integration-options="--skills"`: scaffolds skills as **`.github/skills/speckit-<name>/SKILL.md`**.
+```text
+uv tool update-shell
+```
 
-> Note: `specify init` does **not** generate `.github/copilot-instructions.md`. That file is Copilot's own custom-instructions mechanism; you may create it manually (see [`04-adapting-existing-projects.md`](./04-adapting-existing-projects.md)), but Spec Kit does not produce it.
+Open a new terminal and retry `specify version`. If a different version is
+already installed, deliberately replace **that tool environment**, not your
+project files:
 
-### Other agents
+```text
+uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+specify version
+```
 
-Each agent gets its command files and a context file under its own directory:
+Do not run an unpinned install or `specify self upgrade` during class. CLI
+installation and upgrading an existing project's generated files are separate
+operations; see the [brownfield guide](./04-adapting-existing-projects.md).
 
-| Agent | Integration key | Generated command dir | Context file |
-| --- | --- | --- | --- |
-| GitHub Copilot | `copilot` | `.github/agents/speckit.*.agent.md` (+ `.github/prompts/…`, `.vscode/settings.json`) | *(none generated; optional manual `.github/copilot-instructions.md`)* |
-| Claude Code | `claude` | `.claude/skills/` | `CLAUDE.md` |
-| Gemini CLI | `gemini` | `.gemini/commands/` (TOML) | `GEMINI.md` |
-| Codex CLI | `codex` | `.agents/skills` (invoked as `$speckit-*`) | `AGENTS.md` |
-| Cursor | `cursor-agent` | `.cursor/skills` | `.cursor/rules/specify-rules.mdc` |
+### 3. Establish safe agent permissions
 
-In VS Code with Copilot, invoke the workflow by typing the commands as `/speckit.*` in Copilot Chat (agent mode). Most agents expose these as `/speckit.*` slash commands; the **GitHub Copilot CLI** uses `/agents` to select the agent (or you address it directly in a prompt), and **Codex CLI** skills mode uses `$speckit-*`.
+Open only an empty, dedicated workshop folder, not your home directory or a
+production repository. Review a downloaded repository before granting
+[Workspace Trust](https://code.visualstudio.com/docs/editing/workspaces/workspace-trust).
+Restricted Mode intentionally disables agents; do not trust an unfamiliar
+project merely to dismiss a warning.
 
-## Customization: extensions vs presets
+In VS Code, select manual tool permissions and review existing user/workspace
+terminal auto-approval rules. **Do not choose Allow all, Bypass Approvals, or
+Autopilot for the student exercises.** Use session-scoped approval for understood
+actions. Where your platform supports agent sandboxing, use it under your
+organization's policy; approvals alone are not a sandbox.
 
-Customizations are resolved by priority (high → low):
+Keep cloud tools, additional MCP servers, and unrelated extensions out of the
+lab. Use fictional book titles and authors only. Agent context can leave your
+machine even when the app is local. `.gitignore` is not a data-loss-prevention
+or prompt-context boundary.
 
-| Priority | Source | Path |
-| --- | --- | --- |
-| 1 (highest) | Project-local overrides | `.specify/templates/overrides/` |
-| 2 | Presets | `.specify/presets/templates/` |
-| 3 | Extensions | `.specify/extensions/templates/` |
-| 4 (lowest) | Spec Kit core | `.specify/templates/` |
+## Readiness check
 
-- **Extensions** add NEW capabilities/commands:
+You are ready when each item is true:
 
-  ```bash
-  specify extension search
-  specify extension add <name>
-  ```
+- [ ] Git, Python >=3.11, uv, Node 24.x, and npm resolve in a fresh terminal.
+- [ ] `specify version` shows `1.0.1`.
+- [ ] VS Code Copilot can respond in agent mode under the intended account.
+- [ ] Your organization permits this workflow and you know your usage limits.
+- [ ] You can open browser DevTools in a disposable profile.
+- [ ] You have a separate scratch location, no production data/credentials in it,
+  and manual approvals enabled.
 
-- **Presets** customize HOW existing templates/commands behave:
+If any item is blocked, resolve it before attending. An instructor-led paired
+exercise using an approved environment is preferable to bypassing policy. It
+does not count as independently completing the hands-on acceptance checks.
 
-  ```bash
-  specify preset search
-  specify preset add <name>
-  ```
+## CLI reference
 
-**When to use which:** reach for an **extension** when you need a new command or capability that Spec Kit does not ship; reach for a **preset** when you want to change the behavior or output of an existing command/template.
+**Terminal:** initialize only a **new** project directory. Run one shell variant,
+not both. The lab explains the subsequent Git setup and checkpoints.
 
-## Integration management
+PowerShell:
 
-Manage which AI agent integrations are installed and active. Start with `specify integration list` to discover every supported agent:
+```powershell
+specify init booknook --integration copilot --script ps
+Set-Location booknook
+specify integration status
+```
+
+Bash:
 
 ```bash
-specify integration list               # show available/installed integrations
-specify integration search <term>      # search the integration catalogs
-specify integration info <key>         # show details for one integration
-specify integration install <key>      # install an integration (e.g. copilot)
-specify integration switch <key>       # switch the active integration
-specify integration use <key>          # select the integration to use
-specify integration uninstall          # remove an integration
+specify init booknook --integration copilot --script sh
+cd booknook
+specify integration status
 ```
 
-Spec Kit also ships role-based **bundles** (`specify bundle …`) that group commands and configuration for a workflow; an *agnostic* bundle inherits the project's existing integration rather than pinning one.
+**Expected:** default Copilot skills under
+`.github/skills/speckit-<name>/SKILL.md`, shared `.specify/` infrastructure, and
+the selected shell's helpers. Core 1.0.1 does not initialize Git or make feature
+branches. The active feature is selected through `.specify/feature.json`
+(or `SPECIFY_FEATURE_DIRECTORY`), not by switching Git branches alone.
 
-## Development phases the toolkit supports
+| Integration selection at init | Where to interact | Invocation example |
+| --- | --- | --- |
+| `--integration copilot` (guided path) | VS Code Copilot agent chat | `/speckit-specify` |
+| `--integration claude` | Approved Claude Code session in the project | `/speckit-specify` |
+| `--integration gemini` | Approved Gemini CLI session in the project | `/speckit.specify` |
+| Copilot with `--integration-options="--commands"` (legacy, not this lab) | VS Code Copilot chat | `/speckit.specify` |
 
-- **0-to-1 (greenfield):** start a brand-new project from a specification.
-- **Creative Exploration:** generate parallel implementations to compare approaches.
-- **Iterative Enhancement (brownfield):** apply SDD to add features to an existing codebase.
+These are **chat invocations**, not executable terminal commands. Other agents
+are reference alternatives, not separately rehearsed end-to-end workshop paths.
+Do not mix integration modes or assume every agent has the same permission UI.
+Legacy Copilot commands mode generates `.github/agents/`, `.github/prompts/`,
+and VS Code settings including script auto-approvals; review/remove those
+approvals before applying this workshop's manual-review baseline.
 
-## Further reading
+Within a project, `specify integration list` and `specify integration status`
+show installed integration information; `specify integration list --catalog`
+lists catalog entries. Do not install extra integrations or run external-write
+commands such as taskstoissues just to explore. The complete guided command
+sequence is in the [lab](./03-walkthrough-and-lab.md).
 
-- [`01-what-is-spec-driven-development.md`](./01-what-is-spec-driven-development.md) — the methodology and theory behind SDD
-- [`03-walkthrough-and-lab.md`](./03-walkthrough-and-lab.md) — end-to-end walkthrough and hands-on lab
-- [`04-adapting-existing-projects.md`](./04-adapting-existing-projects.md) — applying Spec Kit to brownfield projects
-- [`../README.md`](../README.md) — project overview
-- Official repository: <https://github.com/github/spec-kit>
-- Official docs site: <https://github.github.io/spec-kit/>
-- Integrations reference: <https://github.github.io/spec-kit/reference/integrations.html>
-- CLI reference: <https://github.github.io/spec-kit/reference/overview.html>
+## Sources and version boundary
+
+Baseline reviewed **September 22, 2026**. Release-specific claims use frozen
+1.0.1 source:
+
+- [CLI reference](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/docs/reference/core.md)
+  and [integration reference](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/docs/reference/integrations.md).
+- [Copilot integration implementation](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/src/specify_cli/integrations/copilot/__init__.py)
+  and [legacy VS Code settings](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/templates/vscode-settings.json).
+- Live references: [VS Code agent security](https://code.visualstudio.com/docs/agents/run/security),
+  [tool approvals](https://code.visualstudio.com/docs/agents/run/approvals),
+  [agent skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills),
+  [uv tool management](https://docs.astral.sh/uv/concepts/tools/), and
+  [Node support status](https://nodejs.org/en/about/previous-releases).
+
+[Back to overview](../README.md) | [Begin the hands-on lab](./03-walkthrough-and-lab.md)

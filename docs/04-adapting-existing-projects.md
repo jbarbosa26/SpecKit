@@ -1,35 +1,35 @@
 # Adapting an Existing Project to Spec-Driven Development
 
-Most teams don't get to start fresh. They have a codebase with years of history, hard-won conventions, a flaky-but-trusted test suite, a CI pipeline nobody wants to touch, and tribal knowledge that lives in people's heads. This guide is about retrofitting **Spec-Driven Development (SDD)** with [GitHub Spec Kit](https://github.com/github/spec-kit) onto exactly that kind of **brownfield** project. Spec Kit is agent-agnostic — this guide uses **GitHub Copilot** as the primary example, but every step works the same with any of the 30+ supported agents (Claude Code, Gemini CLI, Codex CLI, Cursor, and more); just swap the integration key.
+Most teams inherit code, conventions, tests, and undocumented behavior. Introducing **Spec-Driven Development (SDD)** into a **brownfield** project means making new changes reviewable without discarding that history.
 
-The greenfield happy path — where `/speckit.specify` generates an app from scratch — is covered elsewhere (see [Further reading](#further-reading)). Brownfield is a different problem:
+This guide targets **GitHub Spec Kit v1.0.1**, commit `9118ed15a0ba65053469a94c560ea5d233f75884`, with **GitHub Copilot skills in VS Code**. Other integrations can differ in syntax and permissions; swapping a name is not a complete migration procedure.
 
-- You are **not** generating an application from nothing. You are introducing SDD as the workflow for **new changes**.
-- The hard part is **encoding the system you already have** into the constitution and into each spec, so the agent respects existing modules, contracts, and constraints instead of reinventing them.
-- Adoption is **incremental** — feature by feature. Do **not** attempt a "big-bang" rewrite or try to retro-spec your entire codebase. That path leads to a giant pile of speculative documents nobody trusts.
+- Adopt SDD **incrementally**, for a bounded change rather than a big-bang rewrite or an invented specification of the entire legacy system.
+- Capture governing standards in the constitution; put feature-specific existing behavior, dependencies, and uncertainties in the spec and plan.
+- Use tests, reviewed diffs, and human acceptance checks as evidence. Documents alone do not demonstrate correctness or compliance.
 
-The goal: every *net-new* change flows through a spec, while the existing system's reality is captured once (in the constitution) and referenced continually (in each spec and plan).
+The examples extend **BookNook**, the workshop's local browser app: Node.js **24 LTS**, vanilla HTML/CSS/JavaScript, `localStorage`, no application backend, and no third-party npm dependencies. Real projects should retain their own supported stack unless a separately reviewed change justifies migration.
 
 ---
 
 ## Before you start — assess readiness
 
-SDD leans heavily on a few things already being in place. The agent's safety net during implementation is **your existing tests and CI**, and the quality of every spec depends on how well you can articulate current conventions.
+Before giving an agent write or execution access:
 
-Run through this checklist before initializing anything:
-
-- [ ] Reasonably clean git history and a clean working tree (no giant uncommitted changes in flight).
-- [ ] An existing test suite and CI you can lean on as a regression safety net.
-- [ ] Conventions you can capture — documented (CONTRIBUTING, lint configs) or tribal (in someone's head).
-- [ ] An agreed, thin **pilot feature** to be the first SDD slice.
-- [ ] GitHub Copilot available to the team in VS Code.
+- [ ] Identify the repository owner, a small pilot, current conventions, and applicable security/data policies.
+- [ ] Run the existing tests and CI-equivalent checks; record baseline failures. Add characterization tests for relevant undocumented behavior rather than silently treating it as correct.
+- [ ] Back up tracked, untracked, and ignored files using your approved backup process; verify recovery. A branch or tracked-file commit alone does **not** protect all local data.
+- [ ] Review outstanding changes and preserve them before proceeding. Do not reset, clean, delete Git metadata, or rewrite history to obtain a clean tree.
+- [ ] Review unfamiliar repositories in VS Code **Restricted Mode** before trusting them. Agents are disabled there; inspect scripts, instructions, extensions, and workspace settings first.
+- [ ] Use manual approvals and review inherited tool, terminal, and URL permissions. Do not enable global auto-approval. Use supported sandboxing where available; approval prompts and Git branches are not isolation boundaries.
+- [ ] Exclude secrets and production data from prompts, fixtures, and diagnostics. Use fictional data for the pilot.
 
 ### Signals you're ready vs. fix first
 
 | Signal you're ready | Fix first |
 | --- | --- |
-| Working tree is clean; you can branch freely | Uncommitted experiments everywhere; unclear what's shippable |
-| Tests run locally and in CI, mostly green | No tests, or CI is red and ignored |
+| Changes are understood and backed up; baseline is recorded | Unowned changes or no recovery path |
+| Relevant tests pass, or failures are explicitly understood | CI is red and ignored; changed behavior has no checks |
 | Lint/format configs exist and are enforced | Style is "whatever the last commit did" |
 | A small, valuable pilot feature is identified | The only candidate is a 6-month epic |
 | Team has agreed to try SDD on new work | Adoption is a surprise to the team |
@@ -39,47 +39,64 @@ You don't need a perfect score. But the more "fix first" rows you have, the more
 
 ---
 
-## Step 1 — Initialize Spec Kit in place
+## Step 1 — Initialize safely, or use the upgrade path
 
-Spec Kit installs as the `specify` CLI. Prerequisites: **Python 3.11+**, **uv** (or pipx), and a supported agent — for GitHub Copilot the agent key is `copilot`. **Git** is recommended (optional; required only for Spec Kit's git extension / feature branches).
+Prerequisites: **Python 3.11+**, **uv**, Git for the source-pinned installation and review workflow, and approved Copilot access in VS Code. The application runtime is separate from the CLI's Python requirement.
 
-Install the CLI (use a real release tag in place of `vX.Y.Z`):
+**Terminal — install the pinned CLI and inspect the environment:**
 
-> Shell commands below are identical on macOS/Linux (bash/zsh) and Windows PowerShell.
-
-```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+```powershell
+uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+specify version
+specify check
 ```
 
-Initialize **in place** inside your existing repository. The `--here` flag targets the current directory; `--force` allows merging the scaffold into a non-empty directory. Copilot is the example here — swap `copilot` for any agent key (e.g. `claude`, `gemini`, `codex`, `cursor-agent`), or run `specify integration list` to see them all:
+Here `--force` belongs to **uv's CLI installation**, not project initialization. Installing it can replace the CLI used by other projects; record their requirements first. The source commit is pinned, not the entire transitive dependency environment. `specify check` is a tool-availability check, not an application security or correctness test.
 
-```bash
-specify init . --here --force --integration copilot
+If `.specify` or existing Spec Kit integration files are already present, stop and use [Upgrading an existing installation](#upgrading-an-existing-installation). Do not reinitialize an installed project as a shortcut.
+
+After backups and baseline review, create a dedicated review branch **yourself**, from the intended existing branch. Choose an unused branch name.
+
+```powershell
+git status --short
+git diff
+git diff --cached
+git switch -c adopt-spec-kit
+specify init --here --integration copilot --script ps
 ```
 
-### What gets added
+For Bash, use `specify init --here --integration copilot --script sh`; do not run both. `--here` targets the current directory. In a nonempty directory, inspect the warning and confirm only after reviewing the files at risk. Do **not** add blanket `--force` to bypass the check. If unattended initialization cannot obtain confirmation, use an interactive, reviewed session instead.
 
-The Copilot integration is **additive** — it scaffolds new files alongside your code:
+### What to inspect
 
-- `.specify/` — memory (`constitution.md`), scripts, templates, and integration config (`integration.json`, `integration-catalogs.yml`, `init-options.json`).
-- `.github/agents/speckit.*.agent.md` — the primary command definition files, invoked as `/speckit.*` in VS Code Copilot Chat.
-- `.github/prompts/speckit.*.prompt.md` — companion prompt files for the same commands.
-- `.vscode/settings.json`.
-- **(Optional, manual)** `.github/copilot-instructions.md` — Copilot's repo-wide custom-instructions file. Spec Kit does **not** generate this; you can create it yourself to give Copilot durable context (see [Step 2](#step-2--capture-the-system-you-already-have-in-a-constitution)). Other agents use an equivalent context file — `CLAUDE.md` (Claude), `GEMINI.md` (Gemini), or `AGENTS.md` (Codex).
+Default Copilot skills setup uses bundled release assets and creates or updates:
 
-A few brownfield-specific cautions:
+- `.github/skills/speckit-<name>/SKILL.md`, invoked with hyphenated names such as `/speckit-specify`.
+- `.specify` memory, scripts, core templates, workflow files, and integration/init metadata and manifests.
+- An initial constitution template if a constitution is not already present. Feature artifacts arrive later during the workflow.
 
-- **Existing files are merged, not clobbered.** If you already have a `.vscode/settings.json` or a per-agent context file, modified files are preserved — review the diff to confirm.
-- **Commit the scaffold on its own branch/PR.** Don't bury the Spec Kit scaffold inside a feature change. Land it separately so the team can review exactly what arrived and why.
-- **`.gitignore` considerations.** Decide deliberately what to track. The `specs/` directory and constitution should be **versioned** (they're reviewed like code); transient agent output need not be.
+Initialization is **not overwrite-proof**: generated integration files may be replaced. Do not assume every existing customization is merged or preserved. Immediately review:
+
+```powershell
+git status --short --untracked-files=all
+git diff --stat
+git diff
+specify integration status
+```
+
+Git diffs do not show untracked file contents or ignored files: inspect newly generated files directly and compare relevant ignored files with the backup. Review `.gitignore`; version the constitution and feature artifacts, not secrets or transient output. Propose the reviewed scaffold separately from the pilot implementation.
+
+**Legacy mode is different.** Explicit `--integration-options="--commands"` uses dotted invocations such as `/speckit.specify` with agent/prompt files. It can create or merge `.vscode/settings.json`, including `chat.tools.terminal.autoApprove` rules. Review and remove unwanted automatic approvals before execution. Fresh skills mode does not generate those settings, but it does not remove inherited permissions either. This guide uses skills mode throughout.
+
+Core does **not** initialize Git or create feature branches. Those capabilities belong to the optional Git extension, which is not part of this baseline. The feature workflow maintains `.specify/feature.json` independently of Git branches; check both the current branch and feature selection before changes.
 
 ---
 
 ## Step 2 — Capture the system you already have in a constitution
 
-This is the most important brownfield step. The **constitution** (`.specify/memory/constitution.md`) is the set of non-negotiable principles every spec, plan, and task must honor. In a greenfield project it captures aspirations. In a brownfield project it must capture **reality** — the standards your code already follows — or the agent will happily contradict your own system.
+The **constitution** (`.specify/memory/constitution.md`) records governing principles. Ground it in repository evidence and required policy, but distinguish existing behavior from approved standards. An insecure legacy pattern is a gap to remediate, not a rule to perpetuate.
 
-Encode the *existing* standards, not the ones you wish you had:
+Capture:
 
 - Language and runtime versions actually in use.
 - Framework and library choices already committed to.
@@ -89,34 +106,33 @@ Encode the *existing* standards, not the ones you wish you had:
 - Code-review gates and branch-protection rules.
 - Deployment and release policy.
 
-Use `/speckit.constitution` and have Copilot **read the repo first**, then draft principles that reflect current practice and flag gaps:
+**Copilot Chat — read before drafting:**
 
 ```text
-/speckit.constitution Read this repository before drafting. Inspect the key
-config files (package.json / pyproject.toml / go.mod, the CI workflows under
-.github/workflows, CONTRIBUTING.md, and the lint/format configs such as
-.eslintrc, .prettierrc, ruff.toml). Draft a constitution that documents the
-standards we ALREADY follow — runtime versions, framework choices, our existing
-test and coverage requirements, our auth and data-handling rules, our review
-gates, and our deployment policy. Where current practice is inconsistent or
-undocumented, do NOT invent a rule — instead list it under an "Open Questions /
-Gaps" section so we can decide deliberately. Keep principles concrete and
-testable, not aspirational.
+/speckit-constitution Read the existing repository and its applicable policies
+before drafting. Inspect runtime/config files, current tests, CI, contributor
+guidance, and security boundaries; do not read secrets. Distinguish observed
+practice from required policy. Flag unsupported runtimes, inconsistent behavior,
+and security gaps rather than endorsing them or inventing guarantees.
+Record concrete testing, data-handling, dependency, and review requirements.
+For BookNook retain Node 24, browser ES modules, localStorage, fictional data,
+zero third-party npm dependencies, and no application backend or cloud deployment.
+List unresolved decisions for review. Do not execute scripts or change the app.
 ```
 
-Review the draft as a team and refine it. The constitution will be referenced by every later step, so the time spent here pays back repeatedly.
+Review the draft as a team. Amendments need review and an impact assessment; the constitution is not immutable and is not an enforcement mechanism.
 
-You can also (optionally) create `.github/copilot-instructions.md` by hand and seed it with durable repo facts (directory layout, "use the existing `Result<T>` error type", "all DB access goes through the repository layer") so Copilot has that context on every interaction, even outside the Spec Kit commands. Spec Kit doesn't generate this file — it's Copilot's own custom-instructions mechanism. If you use a different agent, put the same facts in its context file instead (`CLAUDE.md`, `GEMINI.md`, or `AGENTS.md`).
+Optionally maintain `.github/copilot-instructions.md` with durable repository facts; initialization does not generate it for you. Keep it consistent with the constitution, free of secrets, and subject to review.
 
 ---
 
 ## Step 3 — Pick a thin, real pilot feature
 
-Your first SDD slice should prove the workflow without betting the product on it. Choose something **small, valuable, low-blast-radius**, that still **touches representative parts of the stack** (an endpoint, a service, persistence, a test) so the team sees the full loop.
+Choose something **small, valuable, low-blast-radius**, with representative domain, UI, and verification work.
 
 | Good pilot candidates | Bad pilot candidates |
 | --- | --- |
-| Add a single new endpoint to an existing service | Re-architect the auth system |
+| Add title/author search to an existing local book list | Add accounts and a cloud backend as an incidental change |
 | A small, well-bounded enhancement to one module | A cross-cutting rewrite of the data layer |
 | A feature with clear acceptance criteria | A vague "make it faster" epic |
 | Something covered by — or easy to cover with — tests | An area with zero test coverage and high risk |
@@ -128,40 +144,43 @@ The pilot's job is to build confidence and reveal friction, not to deliver the b
 
 ## Step 4 — Specify the change against existing reality
 
-Now run `/speckit.specify`. Each invocation creates a **numbered feature directory** `specs/<###-name>/` containing `spec.md` (and a matching feature branch when Spec Kit's git integration is enabled and git is present). The brownfield twist: your prompt must **explicitly reference what already exists** so the spec integrates instead of reinventing.
+For a genuinely new feature, `/speckit-specify` creates a numbered feature directory containing `spec.md` and updates the feature pointer. It does **not** automatically create a Git branch. Explicitly reference existing behavior and contracts so the proposal integrates rather than reinvents.
+
+For an already specified feature, revise its existing artifacts instead of creating a duplicate feature. The workshop's **CR-001 / FR-011** search change extends the selected BookNook feature. Confirm `.specify/feature.json` first, then use this **ordinary Copilot Chat request**:
 
 ```text
-/speckit.specify Add the ability for a signed-in user to export their profile
-as JSON. Integrate with the EXISTING UserService and the current authentication
-middleware — do not introduce a new auth mechanism. Reuse the existing
-serialization conventions in src/serializers. The export endpoint must live
-alongside the current profile routes. Record the systems this feature depends on
-(UserService, the auth middleware, the existing rate limiter) under Assumptions
-and Key Entities so they are explicit.
+Revise this feature's existing spec.md for CR-001 / US3 / FR-011; do not create
+a new feature directory. Add case-insensitive substring search over book title
+OR author. Trim the query; a blank query matches all books. Combine search with
+the existing status filter using AND. Do not persist the query. Show a no-match
+message. Preserve all existing storage, validation, and accessibility behavior.
+Record the existing domain, storage, and UI boundaries and acceptance cases.
+Do not change implementation files yet.
 ```
 
 Tips that matter for brownfield specs:
 
 - Use the **Assumptions** section to record existing systems and behaviors the feature depends on, and any legacy quirks you're choosing to preserve.
 - Use **Key Entities** to name the existing modules/contracts the change touches, so the plan stays anchored to them.
-- Run **`/speckit.clarify`** before planning. Legacy behavior is full of ambiguity ("what does the current endpoint do when the user is unverified?"). Resolve those questions while they're cheap, before they're baked into a plan.
+- Run **`/speckit-clarify`** before planning. Resolve legacy ambiguity against observed behavior and approved requirements, not the agent's guesses.
 
 ---
 
 ## Step 5 — Plan within existing architecture
 
-`/speckit.plan` turns the spec into a technical plan. In brownfield, the plan must **reuse the current stack and patterns** — same frameworks, same layering, same conventions — unless there's a justified reason to deviate.
+`/speckit-plan` develops the technical plan. Reuse the supported stack and existing contracts unless a reviewed decision justifies a change. For an existing feature, require a targeted revision and inspect the diff for accidental loss of prior decisions.
 
 ```text
-/speckit.plan Implement this using our existing stack and patterns only. Honor
-the constitution. Reuse UserService, the current auth middleware, and our
-existing test framework. Do NOT introduce any new framework, library, or service
-without recording a justification in the plan's Complexity Tracking section.
-Add an "as-is vs to-be" note in research.md describing the current behavior of
-the profile routes and exactly what changes.
+/speckit-plan Revise the selected BookNook feature plan for FR-011, preserving
+earlier requirements and decisions. Extend selectBooks in src/domain.js with
+query='' alongside status='all'; preserve its non-mutating behavior. Wire the
+search control in src/app.js and index.html, keeping text rendering safe and
+keyboard access intact. Keep src/storage.js and its persisted schema unchanged.
+Use Node 24 built-in tests, with no npm dependencies. Record as-is/to-be behavior,
+acceptance tests, risks, and recovery steps. Do not implement yet.
 ```
 
-- Point Copilot at the plan template's **Complexity Tracking** section. Any new dependency or architectural deviation should be justified there — this is your guardrail against scope creep and unwanted frameworks.
+- Use **Complexity Tracking** to justify new dependencies or architectural deviations. Review is the gate; the section cannot prevent an agent from deviating.
 - Capture **as-is vs. to-be** notes in `research.md`. Documenting current behavior before describing the change is invaluable when a reviewer asks "what did this break?"
 - The plan may also produce `data-model.md`, `quickstart.md`, and `contracts/` — make sure these describe integration with existing contracts, not parallel new ones.
 
@@ -169,38 +188,61 @@ the profile routes and exactly what changes.
 
 ## Step 6 — Tasks, analyze, implement incrementally
 
-Generate the work breakdown, optionally check it for consistency, then implement:
+Run these **separately in Copilot Chat**, reviewing the result before advancing:
 
 ```text
-/speckit.tasks
-/speckit.analyze
-/speckit.implement
+/speckit-tasks
+/speckit-analyze
+/speckit-implement
 ```
 
-- `/speckit.tasks` writes `tasks.md`. Tasks marked **`[P]`** are parallel-safe (independent files/areas); the rest are ordered.
-- `/speckit.analyze` (optional) checks the spec, plan, and tasks for consistency and coverage gaps before you write code — cheap insurance in a complex existing system.
-- `/speckit.implement` executes the tasks.
+- `/speckit-tasks` writes `tasks.md`. Require explicit test and security-review tasks linked to requirements. For an existing feature, preserve completed work and clearly identify the new delta.
+- A **`[P]`** marker proposes parallel work; verify actual dependencies, shared state, and file overlap yourself.
+- `/speckit-analyze` performs read-only cross-artifact analysis. Resolve material gaps before implementation. It is not a security audit or an OS sandbox.
+- `/speckit-implement` directs the agent to perform tasks. Approve bounded slices, inspect commands before execution, and review resulting diffs.
 
 Brownfield discipline during implementation:
 
-- **Lean on the existing test suite and CI as your safety net.** Run them continuously; they are how you know the agent didn't regress legacy behavior.
-- **Implement behind a branch and PR.** Create a feature branch for the change so it maps naturally to a reviewable pull request.
+- **Run baseline and new checks.** Tests reduce risk but cannot prove that no legacy behavior regressed. Review generated expectations independently.
+- **Use a branch and PR deliberately.** Create the branch yourself; verify the feature pointer after branch changes rather than assuming it follows Git.
 - **Keep changes reviewable.** Small, coherent diffs beat one enormous commit — especially while the team is still learning to trust the workflow.
-- Optionally run **`/speckit.taskstoissues`** to turn the task list into GitHub issues so work is tracked in your normal system.
+- **Keep external actions separate.** Publishing issues, commits, pushes, releases, or deployments requires explicit authorization; it is not implied by implementing a task.
 
-This whole loop is the **Iterative Enhancement (Brownfield)** phase: add features iteratively, modernize legacy areas opportunistically, and adapt your processes as you go — rather than rewriting wholesale.
+For BookNook, use its existing `npm test` and `npm run check` scripts, then browser acceptance checks at `http://127.0.0.1:4173`. There is no `npm install`, build, or lint step. Check search/status combinations, blank/no-match states, persistence, keyboard access, and storage failures. Use a disposable browser profile; preserve corrupt data and reset only `booknook:v1` when explicitly authorized, never all origin storage.
+
+If a slice fails, retain diagnostics without sensitive data, stop further changes, and repair the bounded failure. Compare with your backup and restore only reviewed files when necessary; do not prescribe destructive reset/clean or history-rewrite commands.
 
 ---
 
-## Encoding team standards with presets & extensions
+## Upgrading an existing installation
 
-Spec Kit can be tailored so generated artifacts match your house style automatically.
+**Changing the installed CLI does not regenerate a project.** Treat CLI replacement, repository integration refresh, and optional extension/preset changes as separate reviewed operations. For this workshop, remain on the pinned v1.0.1 commit.
 
-- **Presets** customize how the spec/plan/tasks **templates behave**. Use them to bake in organizational or regulatory standards: a mandatory security-review gate, test-first task ordering, required sections (e.g., a rollback plan), or compliance checklists. Once a preset encodes your conventions, every spec the team produces follows them by default.
-- **Extensions** add **new commands or capabilities** beyond the built-in set — for example, Jira integration, a post-implementation code-review command, or traceability reporting that links tasks back to requirements. Extensions live under `.specify/extensions/templates/` and are managed with `specify extension add` (there is no `extensions.yml`).
-- **Project-local template overrides** live in `.specify/templates/overrides/`. Use these for one-off tweaks specific to this repository when a full preset is overkill.
+1. **Inventory and protect.** Record `specify version` and `specify integration status`, integration mode, customizations, and baseline checks. Back up tracked/untracked/ignored data and create a review branch as above. Identify whether Copilot is the active/default integration.
+2. **Install the approved CLI source.** Use the commit-pinned `uv tool install` command in Step 1, then `specify version` and `specify check`. For a future version, verify its commit and migration guidance first; do not silently follow a moving branch.
+3. **Refresh the installed Copilot integration from that CLI's bundled assets:**
 
-For brownfield teams, a preset that enforces "respect the constitution, justify new dependencies, and include an as-is/to-be section" is a high-leverage early investment.
+   ```powershell
+   specify integration status
+   specify integration upgrade copilot
+   specify integration status
+   ```
+
+   This requires existing installation metadata and a readable integration manifest. If metadata is inconsistent, or output says **"Nothing to upgrade"** because the manifest is missing, stop for manual recovery review. Exit code zero alone does not prove a refresh occurred.
+
+4. **Resolve customizations deliberately.** Modified managed integration files block the ordinary upgrade. Do not bypass this with `--force`: compare local changes with the pinned upstream assets, decide which behavior to retain, and manually reconcile under review before retrying. Do not edit manifest hashes to conceal changes.
+5. **Review the complete result.** Upgrading the **active/default** integration also refreshes eligible shared scripts and templates; locally modified shared files can be retained and need manual reconciliation. Obsolete managed files may be removed. An inactive integration upgrade is not a complete shared-template refresh. Existing commands-mode projects stay in that mode unless deliberately migrated; upgrading is not an automatic switch to skills.
+6. **Validate before adoption.** Inspect warnings, settings, status, tracked diffs, and new/ignored files. Rerun existing checks and rehearse the workflow in a disposable copy with fictional data. Upgrade can partially write files before failing; preserve diagnostics and recover from the reviewed backup rather than assuming an atomic rollback.
+
+The ordinary core upgrade does not regenerate the constitution, feature specs, plans, tasks, or application implementation. It is **not a guarantee that every customization remains effective or compatible**. Optional extension/preset package updates are separate changes; this guide adds none. Review the [frozen upgrade guide](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/docs/upgrade.md) alongside the implementation references below.
+
+---
+
+## Encoding team standards
+
+Start with the reviewed constitution and existing CI gates. Once a pilot works, consider project-local template overrides in `.specify/templates/overrides/`, or reviewed presets for shared conventions. Presets shape generated artifacts; they do not enforce policy or certify compliance.
+
+Extensions add capabilities and can execute code or contact external systems. Treat them as supply-chain changes with explicit approval, not prerequisites for basic SDD. The workshop baseline installs no extensions, extra catalogs, or MCP servers.
 
 ---
 
@@ -210,8 +252,8 @@ Adopt SDD in phases, each with a clear exit criterion. Don't move on until the c
 
 | Phase | Focus | Exit criteria |
 | --- | --- | --- |
-| **Phase 0 — Pilot** | Run one thin feature end-to-end through the full `/speckit.*` loop | Pilot shipped via spec → plan → tasks → implement; team agrees the loop is worth repeating |
-| **Phase 1 — Codify** | Refine the constitution to match reality; add a preset for house style | Constitution reviewed and merged; preset enforces required sections and dependency gates |
+| **Phase 0 — Pilot** | Run one thin feature through the reviewed workflow | Acceptance evidence and regression checks reviewed; team agrees the loop is worth repeating |
+| **Phase 1 — Codify** | Refine the constitution and optional template conventions | Standards, gaps, and review gates agreed; templates support them |
 | **Phase 2 — Roll out** | Expand to a squad/team; specs reviewed in PRs | Multiple features delivered via SDD; specs are reviewed like code; reviewers comfortable with the artifacts |
 | **Phase 3 — Default** | SDD is the standard for all net-new features; modernize legacy opportunistically | New work defaults to a spec; legacy areas refactored under specs as they're touched |
 
@@ -224,18 +266,24 @@ SDD works best when spec artifacts are treated as first-class, reviewed code:
 - **One branch + PR per feature.** Create a branch and PR per feature, and review the `spec.md`, `plan.md`, and `tasks.md` alongside the implementation.
 - **Constitution changes go through review.** A change to your principles affects every future feature; it deserves the same scrutiny as a schema migration.
 - **Keep `specs/` in the repo.** Versioned specs give you history, blame, and traceability — don't relegate them to a wiki.
-- **Align task breakdown with your issue tracker.** Use `/speckit.taskstoissues` (or your own mapping) so Spec Kit's tasks show up where the team already plans work.
+- **Align tasks with normal work tracking.** Link requirements, changes, and evidence; authorize any external publication separately.
 
 ---
 
-## Common pitfalls & how to avoid them
+## Production Azure considerations — conceptual, not a lab step
 
-- **Trying to retro-spec the entire existing codebase.** Don't. SDD is for *new changes*. Capture the existing system once in the constitution; spec only what you're about to change.
-- **Writing an aspirational constitution.** A constitution that describes the system you wish you had will constantly conflict with the system you have. Encode current reality; track gaps separately.
-- **Letting the agent introduce unwanted new dependencies.** Use the plan's **Complexity Tracking** section and constitution gates to force justification for any new framework or service.
-- **Skipping `/speckit.clarify` on legacy ambiguity.** Undocumented legacy behavior is the #1 source of bad specs. Clarify before you plan.
-- **Not committing the scaffold separately.** Land `specify init` on its own PR so the team can review what changed without it being tangled in a feature.
-- **Ignoring existing tests and CI.** They are your regression safety net. If you bypass them, you lose the main thing that makes brownfield SDD safe.
+**No Azure deployment was requested.** The 390-minute workshop requires no Azure subscription, creates no IaC or cloud resources, and incurs no Azure resource costs. Copilot/agent usage may cost money. BookNook is not a production architecture or a compliance deliverable.
+
+If a separate, authorized project later targets Azure, use the [five-pillar and Zero Trust mapping](01-what-is-spec-driven-development.md#a-microsoft-informed-architecture-lens) to turn these decisions into requirements, plans, tasks, and tested evidence:
+
+- **Identity and secrets:** prefer Managed Identity for supported workload-to-service authentication, with least-privilege RBAC. Use Key Vault for necessary secrets, keys, and certificates; never embed credentials in code, prompts, browser storage, or command lines. Managed Identity does not remove the need for authorization.
+- **Connectivity:** choose public/private access, segmentation, and private endpoints from the threat model and data flows, including operational and DNS implications. Private connectivity is not a substitute for authentication or automatically the right design.
+- **Data:** specify classification, permitted regions/data residency, retention/deletion, and backup handling. Keep secrets and sensitive payloads out of logs; define diagnostic access, redaction, and retention.
+- **Cost:** estimate usage, assign owners, and define budgets, alerts, and response actions. Azure budgets **do not cap spending or stop consumption**.
+- **Recovery:** define **RTO** (recovery time objective) and **RPO** (recovery point objective), then test restoration and failure scenarios against them. A backup policy without restore evidence is insufficient.
+- **Delivery:** review IaC, identity scopes, policy checks, and deployment changes through explicit approval gates. Specify rollback, incident response, and operational ownership before release.
+
+These are design prompts, not a complete security assessment or certification.
 
 ---
 
@@ -243,21 +291,17 @@ SDD works best when spec artifacts are treated as first-class, reviewed code:
 
 Copy this into an issue and work through it:
 
-- [ ] Repo readiness assessed (clean tree, tests/CI, conventions identified, pilot chosen, Copilot available).
-- [ ] Spec Kit initialized in place: `specify init . --here --force --integration copilot`.
-- [ ] Scaffold committed on its own branch/PR and reviewed.
-- [ ] `.gitignore` reviewed; `specs/` and constitution are versioned.
-- [ ] Constitution drafted via `/speckit.constitution` to reflect **existing** standards, with gaps flagged.
-- [ ] (Optional) `.github/copilot-instructions.md` (or your agent's context file: `CLAUDE.md`, `GEMINI.md`, `AGENTS.md`) manually seeded with durable repo facts.
-- [ ] Thin pilot feature selected (small, valuable, representative).
-- [ ] `/speckit.specify` run, referencing existing modules/contracts; Assumptions & Key Entities filled in.
-- [ ] `/speckit.clarify` run to resolve legacy ambiguity.
-- [ ] `/speckit.plan` run; reuses existing stack; new deps justified in Complexity Tracking; as-is/to-be noted in `research.md`.
-- [ ] `/speckit.tasks` (and optional `/speckit.analyze`) run; `[P]` tasks identified.
-- [ ] `/speckit.implement` run behind a branch/PR; existing tests + CI green.
-- [ ] (Optional) `/speckit.taskstoissues` run to track work in GitHub.
-- [ ] Preset/extension/overrides considered for house style and brownfield workflow.
-- [ ] Adoption roadmap phase and exit criteria agreed with the team.
+- [ ] Baseline behavior/checks recorded; backups verified, including untracked/ignored files.
+- [ ] Workspace, scripts, tool permissions, and data boundaries reviewed before agent execution.
+- [ ] Review branch created manually; no history rewrite or destructive cleanup.
+- [ ] Pinned CLI verified; safe initialization **or** separate integration-upgrade path chosen.
+- [ ] Generated files, warnings, customizations, ignore rules, and inherited approvals inspected.
+- [ ] Constitution reviewed against evidence and policy, with gaps explicit.
+- [ ] Thin change specified or existing feature revised; active feature pointer confirmed.
+- [ ] Clarifications resolved; plan preserves contracts and explains deviations.
+- [ ] Tasks trace to requirements; consistency findings resolved; implementation reviewed in slices.
+- [ ] Regression, negative-case, security, and human acceptance evidence reviewed.
+- [ ] Recovery steps and team adoption criteria agreed; publication/deployment separately authorized.
 
 ---
 
@@ -267,5 +311,16 @@ Copy this into an issue and work through it:
 - [02 — Spec Kit breakdown](02-spec-kit-breakdown.md)
 - [03 — Walkthrough and lab](03-walkthrough-and-lab.md)
 - [Project overview](../README.md)
-- Official Spec Kit repository: <https://github.com/github/spec-kit>
-- Official Spec Kit documentation: <https://github.github.io/spec-kit/>
+**Frozen v1.0.1 implementation sources** (commit `9118ed15a0ba65053469a94c560ea5d233f75884`):
+
+- [Upgrade guidance](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/docs/upgrade.md)
+- [Copilot integration](https://github.com/github/spec-kit/tree/9118ed15a0ba65053469a94c560ea5d233f75884/src/specify_cli/integrations/copilot) and [upgrade implementation](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/src/specify_cli/integrations/_migrate_commands.py)
+- [Bundled command templates](https://github.com/github/spec-kit/tree/9118ed15a0ba65053469a94c560ea5d233f75884/templates/commands)
+
+**Live official guidance** (evolves independently of the pinned toolkit):
+
+- [VS Code agent security](https://code.visualstudio.com/docs/agents/run/security), [approvals](https://code.visualstudio.com/docs/agents/run/approvals), and [Workspace Trust](https://code.visualstudio.com/docs/editing/workspaces/workspace-trust)
+- [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/) and [security principles](https://learn.microsoft.com/en-us/azure/well-architected/security/principles)
+- [Microsoft Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-overview)
+- [Managed identities](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) and [Key Vault concepts](https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts)
+- [Azure budgets and their limitations](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets)

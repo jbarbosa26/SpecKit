@@ -1,24 +1,24 @@
 # What Is Spec-Driven Development?
 
-For decades, the working assumption of software engineering has been simple: **code is truth.** Specifications, design documents, and requirements were scaffolding — useful to get started, but disposable the moment real code existed. We wrote the spec, built the system, and then watched the document drift into irrelevance while the code marched on as the only artifact that actually mattered.
+Specifications often drift away from the software they describe. **Spec-Driven Development (SDD)** addresses that problem by keeping intent explicit, versioned, and reviewable throughout delivery. A specification describes the desired behavior and constraints; a technical plan explains the design; tasks connect that design to implementation and verification.
 
-Spec-Driven Development (SDD) inverts this relationship. It performs a deliberate **power inversion**: the **specification becomes the primary, executable artifact**, and code becomes its generated expression. The spec is no longer a faded photograph of intent — it is the living source of truth from which implementations are produced, regenerated, and validated.
+The specification is authoritative about **intended behavior**, not proof of **actual behavior**. Natural-language requirements are not literally executable. Tools such as GitHub Spec Kit help an AI agent turn them into plans, code, and tests, but engineers must review the interpretation, run independent checks, and reconcile differences.
 
-The mantra is short: **specifications don't serve code; code serves specifications.** Your job shifts from typing implementation details to expressing intent precisely enough that a capable system can realize it.
+The useful principle is **code should serve agreed intent**. SDD does not remove engineering judgment, guarantee deterministic generation, or establish security, compliance, or production readiness by producing documents.
 
 ---
 
 ## Why Now?
 
-SDD is not a new wish — engineers have always wanted faithful specs. What changed is that three trends finally make the inversion practical and, increasingly, necessary.
+SDD is not a new wish. Three pressures make disciplined specification particularly useful in AI-assisted development:
 
-1. **AI can turn natural language into working code.** Modern models reliably translate precise, well-structured natural-language specifications into functioning implementations. The bottleneck moved from "writing the code" to "stating the intent clearly." That makes the specification the highest-leverage artifact in the entire workflow.
+1. **AI accelerates implementation, including mistakes.** Precise requirements and bounded tasks make generated changes easier to inspect. Models can still misunderstand requirements or invent assumptions.
 
-2. **Software complexity keeps growing.** Systems are larger, more interconnected, and more constrained by compliance, performance, and security requirements than ever. Keeping an implementation aligned with its intent across that complexity demands a systematic mechanism — not tribal memory and stale wikis.
+2. **Constraints cross team boundaries.** Security, reliability, accessibility, performance, and data-handling decisions need a shared record rather than scattered chat history.
 
-3. **Requirements change faster than ever.** Markets, regulations, and user expectations shift mid-project. When the spec is the source of truth, a pivot becomes a **systematic regeneration** rather than a fragile manual rewrite. You change the intent, then re-derive the plan and the implementation.
+3. **Requirements change.** Updating the specification first exposes the impact on contracts, tests, and implementation. It does not make wholesale regeneration safe; incremental changes still need regression checks.
 
-Together, these trends turn "keep the spec authoritative" from an aspiration into a workable engineering discipline.
+The benefit is a more inspectable delivery process, not a promise that better prompts eliminate defects.
 
 ---
 
@@ -26,13 +26,13 @@ Together, these trends turn "keep the spec authoritative" from an aspiration int
 
 SDD rests on a handful of principles that, taken together, distinguish it from ad-hoc prompting.
 
-- **Specifications as the lingua franca.** The spec is the shared language of the project. Product, engineering, design, and AI tooling all converge on one precise statement of intent rather than scattered docs and Slack threads.
-- **Executable specifications.** A good spec is precise, complete, and unambiguous enough to generate a working system. Vagueness isn't tolerated as "we'll figure it out later" — it's surfaced and resolved.
-- **Continuous refinement.** Consistency and quality validation happen continuously, not as a one-time gate before sign-off. The spec is checked, clarified, and tightened throughout the lifecycle.
-- **Research-driven context.** Specs and plans are informed by gathered context — technical constraints, dependencies, organizational standards — rather than written in a vacuum.
-- **Bidirectional feedback.** Production reality flows back into the specification. What you learn from running systems, incidents, and metrics informs the next revision of intent.
-- **Branching for exploration.** Because the spec is the source, you can generate **multiple implementations** from one specification — exploring different stacks, architectures, or UX directions in parallel.
-- **Intent-driven development.** The **WHAT** and the **WHY** come first and stay separated from the **HOW**. Implementation choices are deliberately deferred until intent is solid.
+- **Shared intent.** Product, engineering, design, and AI tooling work from the same reviewed requirements.
+- **Testable outcomes.** Define observable acceptance criteria, failure behavior, and explicit exclusions. Surface unknowns rather than silently guessing.
+- **WHAT/WHY before HOW.** Separate user outcomes from design choices, while recording genuine constraints imposed by an existing system.
+- **Research-driven context.** Inspect current code, contracts, dependencies, and organizational standards before proposing a change.
+- **Traceability.** Connect requirement identifiers to design decisions, tasks, implementation changes, and verification evidence.
+- **Continuous refinement.** Feed review findings, tests, incidents, and operational observations back into the artifacts.
+- **Controlled exploration.** Compare alternative implementations in isolated workspaces or deliberately created branches, with the same acceptance criteria.
 
 ---
 
@@ -40,29 +40,30 @@ SDD rests on a handful of principles that, taken together, distinguish it from a
 
 SDD is a loop, not a waterfall. It starts with a rough idea and refines it through structured phases, with the artifacts versioned in branches and reviewed like code.
 
-The flow moves from a governing **constitution**, into **specify** (WHAT/WHY, no technology), through **clarify**, into **plan** (HOW/tech choices), then into discrete **tasks**, an **analyze** consistency check, and finally **implement**. Crucially, learnings feed back to **specify**, so the cycle continues as understanding deepens.
+The flow moves from a governing **constitution**, into **specify** (WHAT/WHY), through **clarify**, into **plan** (HOW), then **tasks**, an **analyze** consistency check, and gated **implementation and verification**. Findings can send you back to any earlier artifact.
 
 ```text
-        ┌───────────────────────────────────────────────────────┐
-        │                                                       │
-        v                                                       │
-   Constitution ──> Specify ──> Clarify ──> Plan ──> Tasks ──> Analyze ──> Implement
-                       ^                                                       │
-                       │                                                       │
-                       └───────────────── feedback ────────────────────────────┘
+Constitution → Specify → Clarify → Plan → Tasks → Analyze → Implement + verify
+                   ↑                                           |
+                   └────────── reviewed feedback ───────────────┘
 ```
 
-Each step produces a reviewable artifact:
+Each step has a different responsibility:
 
-- **Constitution** — the immutable governing principles for the project.
-- **Specify** — what we're building and why, with no technology decisions.
-- **Clarify** — resolve ambiguities and `[NEEDS CLARIFICATION]` markers.
-- **Plan** — how we'll build it: stack, architecture, data model, constraints.
-- **Tasks** — a decomposed, ordered list of implementable units of work.
-- **Analyze** — a cross-artifact consistency and quality check.
-- **Implement** — generate and integrate the code that fulfills the spec.
+| Step | Reviewable result |
+| --- | --- |
+| Constitution | `.specify/memory/constitution.md`: governing principles and review gates, amendable through review. |
+| Specify / clarify | `spec.md`: user stories, requirements, acceptance criteria, scope, and resolved ambiguities. |
+| Plan | `plan.md`: architecture, interfaces, constraints, and justified trade-offs; supporting research or contracts where needed. |
+| Tasks | `tasks.md`: ordered work, dependencies, verification tasks, and links back to requirements. |
+| Analyze | Consistency findings across the artifacts, not proof that the software works or is secure. |
+| Implement / verify | Source changes, reviewed diffs, test results, manual checks, and unresolved risks. |
 
-Because every artifact lives in version control, specs are diffed, reviewed, and approved with the same rigor as source code.
+Version these artifacts alongside the implementation. A checked task box is not evidence that its acceptance criteria passed. For example, BookNook's **FR-006** requires safe storage-failure behavior: the plan defines error propagation, tasks cover storage and UI changes, and evidence must show a failed save neither changes the displayed state nor reports success.
+
+**Generated tests can share the implementation's mistaken assumptions.** Review expected results against the requirements, add negative and boundary cases, and use independent human checks. Passing tests establish only what those tests actually exercised.
+
+This repository pins **Spec Kit v1.0.1**. Its default Copilot skills use hyphenated names such as `/speckit-specify`, `/speckit-plan`, and `/speckit-tasks`. Core selects the active feature through `.specify/feature.json`, independently of the current Git branch. Git initialization and automatic feature branches require an **opt-in Git extension**; core does neither. See the [pre-work and command reference](02-spec-kit-breakdown.md) before running the workflow.
 
 ---
 
@@ -72,31 +73,49 @@ SDD adapts to where you are in a product's life. The same methodology supports b
 
 | Phase | What It Means | Typical Use |
 | --- | --- | --- |
-| **0-to-1 (Greenfield)** | Generate a system from scratch, starting from intent and producing a first working implementation. | New products, new services, proofs of concept that need to become real. |
-| **Creative Exploration** | Produce parallel implementations from one spec to compare stacks, architectures, and UX approaches. | Evaluating technology choices, de-risking architecture, design bake-offs. |
-| **Iterative Enhancement (Brownfield)** | Add features iteratively, modernize legacy code, and adapt processes — all anchored to an authoritative spec. | Existing products, modernization efforts, incremental delivery. |
+| **0-to-1 (Greenfield)** | Build and verify a first implementation from agreed intent. | New products and bounded proofs of concept. |
+| **Creative Exploration** | Compare implementations against shared acceptance criteria. | Technology choices, architecture experiments, and UX alternatives. |
+| **Iterative Enhancement (Brownfield)** | Specify a bounded change against existing behavior and contracts. | Existing products, modernization, and incremental delivery. |
 
 ---
 
 ## How Templates Raise Quality
 
-SDD doesn't rely on the AI's good intentions — it constrains the AI with **structured templates** that consistently produce better specifications. The templates encode hard-won engineering discipline:
+Structured templates make omissions easier to notice:
 
-- **Force `[NEEDS CLARIFICATION]` markers** so the AI flags unknowns instead of silently guessing.
-- **Separate WHAT from HOW**, keeping premature implementation detail out of the specification.
-- **Embed checklists** that act like "unit tests for the spec" — testable conditions a spec must satisfy.
-- **Add constitution "gates"** that prevent over-engineering by requiring justification for added complexity.
-- **Encourage test-first thinking**, so acceptance criteria and verification are designed alongside intent, not bolted on later.
+- **Clarification markers** expose unknowns for a decision.
+- **Separate specification and plan sections** distinguish intent from design.
+- **Checklists** prompt reviewers to examine scope, completeness, and quality.
+- **Constitution checks** require justification for deviations and added complexity.
+- **Verification tasks** put acceptance and failure cases into the work breakdown. State testing requirements explicitly rather than assuming tests will always be generated.
 
-The result is that the structure of the template, not just the prompt, drives quality.
+These are process aids, not enforcement boundaries. A checklist cannot replace code review, an executable test, or a security control.
 
 ---
 
 ## The Constitution
 
-At the heart of an SDD project is its **constitution** — a set of immutable governing principles the project commits to. It captures the non-negotiables: quality standards, testing expectations, simplicity and anti-over-engineering rules, UX consistency, performance and security baselines, and any organizational mandates.
+The **constitution** records the team's governing principles: quality and testing expectations, simplicity, accessibility, performance and security baselines, and organizational obligations. It should identify concrete review gates rather than promise qualities that have not been demonstrated.
 
-Think of the constitution as the project's **architectural DNA.** Every specification and every plan must comply with it, and the analyze step references it to catch drift. By making principles explicit and persistent, the constitution keeps a fast-moving, AI-assisted workflow aligned with what the team actually values.
+It is stable, not immutable. Amend it deliberately, review the impact on existing artifacts, and distinguish required policy from current implementation gaps. In brownfield work, do not mistake an insecure legacy practice for an acceptable standard.
+
+---
+
+## A Microsoft-Informed Architecture Lens
+
+The [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/) provides five useful review dimensions. Use them proportionately; this mapping is not Microsoft endorsement, a compliance assessment, or a requirement to provision Azure.
+
+| Pillar | Specification: required outcome | Plan, tasks, and implementation evidence |
+| --- | --- | --- |
+| **Reliability** | Failure behavior, availability needs, and acceptable data loss. | Design recovery paths; test failures and restoration against agreed recovery objectives. |
+| **Security** | Protected assets, trust boundaries, allowed actions, and data handling. | Threat model, least-privilege design, security tests, and reviewed controls. |
+| **Cost Optimization** | Cost constraints and accountable owners. | Compare alternatives; measure usage and review alerts. A budget is not a spending cap. |
+| **Operational Excellence** | Support, change approval, diagnostics, and recovery expectations. | Reviewable changes, appropriate automation, safe diagnostic practices, and rehearsed runbooks. |
+| **Performance Efficiency** | Measurable response-time, capacity, and resource limits. | State workload assumptions; run representative boundary and performance tests. |
+
+[Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-overview) and the [Well-Architected security principles](https://learn.microsoft.com/en-us/azure/well-architected/security/principles) add three access-control principles: **verify explicitly, use least privilege, and assume breach**. For a production workload, translate them into identity, authorization, segmentation, detection, and recovery requirements.
+
+Apply the same risk mindset to the development environment: review workspace content and proposed commands, give agents only the tools and access needed, and assume repository text or fetched material could contain prompt injection. A specification or a read-only analysis instruction is **not an OS sandbox**. These practices do not turn a local demo into a Zero Trust architecture.
 
 ---
 
@@ -127,7 +146,7 @@ The goal is leverage, not ceremony. Use the full loop where alignment and reprod
 It helps to contrast SDD with the increasingly common practice of **"vibe coding"** — improvising with the AI one prompt at a time.
 
 - **Vibe coding** is prompt-by-prompt. Intent lives only in the chat history (or someone's head), the path to a result is hard to reproduce, and review is difficult because there's no durable, structured artifact of what was intended.
-- **Spec-Driven Development** is structured and multi-step. Intent is captured, clarified, and refined deliberately; it is **versioned** alongside the code; and the result is **reproducible and reviewable**, because the specification — not a transient conversation — is the source of truth.
+- **Spec-Driven Development** is structured and multi-step. Intent is captured, clarified, and **versioned** alongside the code. The process and decisions become more traceable and reviewable, even though model output may differ between runs.
 
 Vibe coding is excellent for exploration and momentum. SDD is what you reach for when intent must outlive the conversation that created it.
 
@@ -135,17 +154,20 @@ Vibe coding is excellent for exploration and momentum. SDD is what you reach for
 
 ## Next Steps / Further Reading
 
-SDD is a methodology, not a product — it is independent of any particular tool or AI coding agent. GitHub Spec Kit is one implementation of it, and it is itself agent-agnostic, working with 30+ agents (GitHub Copilot, Claude Code, Gemini CLI, Codex CLI, Cursor, and more).
+SDD is a methodology, not a product. GitHub Spec Kit supports multiple integrations; this repository guides **GitHub Copilot in VS Code using skills mode**. Do not assume every integration uses identical commands or permissions.
+
+The separate **390-minute workshop** (excluding pre-work and breaks) builds **BookNook**, a single-user local browser demo using vanilla HTML/CSS/JavaScript and `localStorage`. Node.js **24 LTS** serves static files and runs built-in tests; there is no application backend or third-party npm dependency. Use fictional data only. The workshop creates **no Azure deployments, IaC, or cloud resources and incurs no Azure resource costs**; agent usage may cost money. Its checks are learning evidence, not security, accessibility, compliance, or production-readiness certification.
 
 Continue with the sibling docs in this sample:
 
-- [`02-spec-kit-breakdown.md`](02-spec-kit-breakdown.md) — the GitHub Spec Kit toolkit and its commands.
-- [`03-walkthrough-and-lab.md`](03-walkthrough-and-lab.md) — a hands-on lab to try SDD end to end.
+- [`02-spec-kit-breakdown.md`](02-spec-kit-breakdown.md) — student pre-work and the version-specific command reference.
+- [`03-walkthrough-and-lab.md`](03-walkthrough-and-lab.md) — the hands-on workshop.
 - [`04-adapting-existing-projects.md`](04-adapting-existing-projects.md) — brownfield adoption for existing codebases.
 - [Project overview](../README.md) — what this repository contains and how the docs fit together.
 
-Official sources:
+**Frozen implementation reference:** Spec Kit v1.0.1, commit `9118ed15a0ba65053469a94c560ea5d233f75884`.
 
-- **GitHub Spec Kit repository** — https://github.com/github/spec-kit
-- **Spec Kit documentation** — https://github.github.io/spec-kit/
-- **Spec-Driven Development methodology deep-dive** — https://github.com/github/spec-kit/blob/main/spec-driven.md
+- [Spec Kit methodology](https://github.com/github/spec-kit/blob/9118ed15a0ba65053469a94c560ea5d233f75884/spec-driven.md) — interpret its aspirational language with the engineering limits above.
+- [Bundled workflow command templates](https://github.com/github/spec-kit/tree/9118ed15a0ba65053469a94c560ea5d233f75884/templates/commands).
+
+**Live guidance:** the Microsoft sources above and [VS Code agent security](https://code.visualstudio.com/docs/agents/run/security) evolve independently of the frozen toolkit release.

@@ -7,7 +7,7 @@ Thumbs.db
 .idea/
 *.swp
 
-# Node (only used by the /speckit.implement lab step)
+# Accidental local Node artifacts (the teaching repo has no npm dependencies)
 node_modules/
 npm-debug.log*
 yarn-error.log*
@@ -16,8 +16,15 @@ yarn-error.log*
 __pycache__/
 *.pyc
 .venv/
-.env
 
-# Throwaway lab scaffolding produced by the walkthrough (not part of these reference docs)
+# Local secrets; ignore rules do not prevent agent access or protect tracked files
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+
+# Accidental scaffolding in THIS documentation repo only. In a student's separate
+# application repo, track shared .specify/ artifacts and .github/skills/ instead.
 booknook/
 .specify/

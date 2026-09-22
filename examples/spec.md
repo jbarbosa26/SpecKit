@@ -1,95 +1,154 @@
 # Feature Specification: Library & Reading Status
 
-**Feature Branch**: `001-library-reading-status`
-**Created**: 2026-06-16
-**Status**: Draft
-**Input**: Build the core of BookNook — let a single user track books and their reading status, organize books into shelves, and search and filter the library. Tech-agnostic.
+**Status:** Illustrative, pending human review; not generated output or an implemented application.
 
-## User Scenarios & Testing
+**Toolkit baseline:** Spec Kit v1.0.1.
 
-### User Story 1 - Track books and reading status (Priority: P1)
+**Related artifacts:** [constitution](./constitution.md), [plan](./plan.md), [tasks](./tasks.md).
 
-A reader adds books to their library and tracks where each one stands: not started, in progress, or done. They can see their whole library at a glance.
+## Purpose and Scope — WHAT and WHY
 
-**Why this priority**: This is the heart of BookNook. Without the ability to record a book and its status, no other feature has anything to act on. It delivers standalone value on its own.
+BookNook lets a single reader maintain a small reading list on their own machine.
+The workshop uses **fictional data only**, including every fixture, title, and
+author below. Reliable feedback matters more than feature count: the application
+must not claim to have saved a change that it could not preserve.
 
-**Independent Test**: With an empty library, add two books, set one to `Reading` and one to `Finished`, and confirm both appear in the list with the correct status — no shelves or search required.
+The base is **US1 / US2 and FR-001–FR-010 only**. No authentication, sharing,
+cloud deployment, application API, database, MCP, telemetry, external assets,
+shelves, delete operation, import, or export is in scope. The separately proposed
+search change at the end is **absent from the base**.
 
-**Acceptance Scenarios**:
+This specification defines observable outcomes and data-integrity constraints.
+Runtime, filenames, storage mechanism, exported functions, and HTTP controls are
+HOW decisions in the [implementation plan](./plan.md). The local-only boundary
+is a requirement, not a claim of confidentiality, production readiness, or
+accessibility/compliance certification.
 
-1. **Given** an empty library, **When** the user adds a book with a title and author, **Then** the book appears in the library list with a default status of `Want to Read`.
-2. **Given** a book in the library, **When** the user changes its status to `Reading`, **Then** the new status is shown and persists after a page reload.
-3. **Given** several books with different statuses, **When** the user views the library, **Then** each book is listed with its current status.
+## Base User Stories
 
-### User Story 2 - Organize books into shelves (Priority: P2)
+### US1 — Add, list, and persist books (Priority: P1)
 
-A reader groups books into named shelves (e.g. "Sci-Fi", "Borrowed", "2026 Goals") and can view the books on any one shelf.
+A reader records a title and author, sees their books newest first, and finds
+the same list after refreshing. This provides value without status controls or
+search.
 
-**Why this priority**: Organization adds meaningful value but only once books exist (US1). It is independently shippable on top of the library.
+**Independent acceptance exercise:**
 
-**Independent Test**: With at least one book present, create a shelf named "Favorites", assign the book to it, open the shelf, and confirm the book appears there.
+1. Given no saved list, opening the application shows a clear empty-library
+   message, not an error.
+2. Adding fictional `Orbit` by `Ada` creates a book with a unique identifier and
+   displays its trimmed title/author and status `unread`. Adding fictional
+   `Harbor` by `Bo` puts it first.
+3. Refreshing preserves the books, their order, and their statuses. Adding another
+   `Orbit` by `Ada` is allowed without a duplicate-title warning or confirmation.
+4. Blank or overlong input produces field-associated feedback without changing
+   the saved list; the 201st book is rejected without removing an existing book.
+5. If loading fails or saved data is invalid, an accessible error replaces any
+   claim that an empty library loaded successfully, and writes are blocked.
+   If saving fails, the previously displayed/saved books and entered values remain;
+   there is no success announcement.
 
-**Acceptance Scenarios**:
+### US2 — Toggle and filter reading status (Priority: P2)
 
-1. **Given** an existing book, **When** the user creates a shelf and assigns the book to it, **Then** the book appears when viewing that shelf.
-2. **Given** a book assigned to two shelves, **When** the user views either shelf, **Then** the book appears on both.
-3. **Given** a shelf with books, **When** the user removes a book from the shelf, **Then** the book remains in the library but no longer appears on that shelf.
+A reader marks a book `read` or `unread` and views all books or just one status.
+This builds on US1 without introducing another entity or persisted preference.
 
-### User Story 3 - Search and filter the library (Priority: P3)
+**Independent acceptance exercise:**
 
-A reader with a large library quickly finds books by searching title or author and narrowing by status or shelf.
+1. Given the US1 fixture, changing `Orbit` to `read` changes only that book's
+   status. Refreshing preserves it; changing it back to `unread` also persists.
+2. The initial filter is `all`. Selecting `read` or `unread` shows exactly that
+   subset in the existing newest-first order. Returning to `all` restores the list.
+3. A filter with no results shows a no-match message distinct from an empty
+   library. Filtering does not change saved books or their order.
+4. Refreshing resets the filter to `all`, not the saved statuses.
+5. A failed status save leaves the prior displayed status and stored list intact.
+   All actions, including correction after an error, work with keyboard alone.
 
-**Why this priority**: Search and filter improve usability at scale but depend on books (US1) and benefit from shelves (US2). It is the last increment and independently testable.
+## Base Functional Requirements
 
-**Independent Test**: With several books across statuses and shelves, search for an author's name and confirm only matching books show; then filter by status `Finished` and confirm the result set narrows correctly.
+| ID | Required observable behavior |
+| --- | --- |
+| **FR-001** | **Validated add/list.** Accept title and author as strings, trim both, require title length 1–120 and author length 1–80 in UTF-16 code units, and list title/author/status. Assign a unique canonical lowercase UUID v4; new books start `unread` and are prepended. Duplicate title/author pairs are allowed; duplicate IDs are invalid. Invalid input leaves the prior list unchanged. |
+| **FR-002** | **Versioned persistence.** Preserve all accepted books, statuses, and order locally across refresh. Use version 1 of the data contract below; a successful save is a prerequisite to displaying or announcing a successful change. |
+| **FR-003** | **Status changes.** Toggle an existing book between `unread` and `read`, preserving other books and order. Unknown IDs and all other status values are rejected without changing existing data. |
+| **FR-004** | **Status filtering.** Offer `all`, `unread`, and `read`, defaulting to `all`. Filtering is a view of saved books, retains order, and is never persisted. |
+| **FR-005** | **Bounded library.** Support at most 200 books. Accept the 200th; reject the 201st and reject saved lists already exceeding 200. Never silently truncate or evict. |
+| **FR-006** | **Safe corruption and storage failures.** Only absence of saved data means an empty library. Empty text, malformed or invalid saved data, unexpected fields/version, duplicate IDs, and oversized lists are errors. Reject saved text over 100000 UTF-16 code units before parsing. Reject a change whose serialized representation exceeds that same limit before replacing any saved data, even when its fields are valid. Preserve invalid saved data and block writes; surface access/read/write errors visibly and accessibly. A failed save preserves prior displayed books, stored data, and form input; no silent reset, in-memory-success fallback, or raw-data logging. |
+| **FR-007** | **Inert text.** Treat all titles/authors, including restored values containing HTML-like text, as text, never executable markup or script. |
+| **FR-008** | **Keyboard and accessible feedback.** Provide labeled controls, visible focus, keyboard operation without traps, field-associated errors, and polite live status feedback. Errors and success must be distinguishable without relying only on color. |
+| **FR-009** | **Local-only restricted serving.** Serve only approved application assets at the designated loopback origin. Reject other hosts, methods, and routes; prevent exposure of arbitrary local files and apply browser security headers. No app-origin remote connections or remote assets are required or permitted. |
+| **FR-010** | **Empty/no-match feedback.** Distinguish a genuinely empty library from a populated library with no books matching the status filter. Neither message may hide a load/save failure. |
 
-**Acceptance Scenarios**:
+### Data Integrity Contract
 
-1. **Given** a library with many books, **When** the user searches for part of a title or author, **Then** only matching books are shown.
-2. **Given** books of mixed status, **When** the user filters by `Reading`, **Then** only books with that status are shown.
-3. **Given** a search term combined with a shelf filter, **When** both are applied, **Then** results match the term **and** belong to the selected shelf.
+- **Library:** exactly `version` (number `1`) and `books` (ordered list).
+- **Book:** exactly `id`, `title`, `author`, and `status`; no missing or extra fields.
+  Values must meet FR-001 and FR-003. Saved title/author values must already be
+  trimmed; invalid saved values are rejected, not silently repaired.
+- **Identity:** canonical lowercase UUID v4 IDs are unique within the library.
+  Text equality is not identity. Every book always has a status.
+- **View state:** the status filter is not part of the saved library. There is no
+  base search query or search control.
+- **Failure:** validation does not mutate its input; invalid data is not migrated,
+  sanitized into a replacement library, truncated, or overwritten automatically.
 
-### Edge Cases
+### Resolved Clarifications and Boundaries
 
-- **Duplicate title + author**: adding a book that matches an existing title and author is allowed but the user is warned first.
-- **Empty library**: the library view shows a friendly empty state, not an error.
-- **Very long titles**: long titles are stored in full and truncated gracefully in the list view.
-- **Book on no shelf**: a book that belongs to no shelf still appears in the main library and in status filters.
-- **Empty search**: clearing the search term restores the full (filter-respecting) list.
+The workshop chooses 200 books, two statuses, newest-first order, and duplicate
+titles without warnings. Length means UTF-16 code units, not displayed glyphs:
+60 `😀` characters fit a 120-unit title; 61 do not. Empty text is not absent data.
+Unknown fields are rejected at both library and book levels, even if otherwise
+harmless. Schema-error wording may vary: tests assert rejection and preservation,
+**not exact error messages**.
 
-## Requirements
+The exercise assumes one active tab and a disposable browser profile. Concurrent
+tab conflict resolution, backups, encryption, and protection from a compromised
+browser/device are not provided. Normal use requires the local static server;
+there is no offline installation/service-worker promise.
 
-### Functional Requirements
+## Acceptance Evidence and Review
 
-- **FR-001**: The system MUST let the user add a book with a title and an author.
-- **FR-002**: The system MUST assign every new book a reading status, defaulting to `Want to Read`.
-- **FR-003**: The system MUST let the user change a book's status among `Want to Read`, `Reading`, and `Finished`.
-- **FR-004**: The system MUST display the library as a list showing each book's title, author, and current status.
-- **FR-005**: The system MUST persist books and their status locally so they survive a reload.
-- **FR-006**: The system MUST let the user create a named shelf.
-- **FR-007**: The system MUST let the user assign a book to one or more shelves and remove it from a shelf.
-- **FR-008**: The system MUST let the user view the books on a selected shelf.
-- **FR-009**: The system MUST let the user search books by title or author and filter by status and/or shelf.
-- **FR-010**: The system MUST warn the user when adding a book whose title and author match an existing book. [NEEDS CLARIFICATION: is there a maximum library size BookNook must support, and may a book ever exist with no status?]
+The [plan's test and evidence matrix](./plan.md#test-and-evidence-matrix) binds
+every base FR to named tests/manual evidence and [concrete tasks](./tasks.md).
+The following are completion criteria to verify, not pre-recorded successes:
 
-### Key Entities
+- **SC-001:** US1 and US2 acceptance exercises pass with the fictional fixture,
+  including refresh, duplicates, order, status, and filter reset.
+- **SC-002:** All validation boundaries, corrupt storage, unavailable reads, and
+  failed writes have observed tests; no destructive or misleading fallback occurs.
+- **SC-003:** Inert text, keyboard/focus/error feedback, and restricted HTTP
+  behavior have actual browser/server evidence, including denial paths.
+- **SC-004:** Every FR has a reviewed test/evidence/task link; remaining limitations
+  are recorded. No measured speed, classroom duration, or certification claim is made.
 
-- **Book**: a record the user wants to track — has a title, an author, and one reading status; may belong to zero or more shelves.
-- **Shelf**: a user-named grouping of books; a shelf contains zero or more books, and a book may appear on several shelves.
-- **ReadingStatus**: the state of a book in the reader's journey — one of `Want to Read`, `Reading`, or `Finished`.
+- [ ] Student owner and peer/facilitator reviewed the base requirements and scope.
+- [ ] Evidence for SC-001–SC-004 was recorded in the student's own artifacts.
+- [ ] No unresolved blocking security, integrity, or accessibility finding is hidden.
 
-## Success Criteria
+## Later Change Only — CR-001 / US3 / FR-011
 
-### Measurable Outcomes
+**Not base scope.** This is the proposed **60-minute second iteration** of the
+[390-minute workshop](./README.md#workshop-budget), including artifact review,
+test-first change, regression checks, and human acceptance. Amend this same
+feature's spec, plan, and tasks; do not create a new feature directory.
 
-- **SC-001**: A user can add a book and see it in the library in **under 5 seconds** of interaction.
-- **SC-002**: The library list renders in **under 100 ms** for a library of **1,000 books**.
-- **SC-003**: A search returns matching results in **under 200 ms** for a library of **1,000 books**.
-- **SC-004**: A new user can add a book, set its status, create a shelf, assign the book, and find it via search **without external documentation**.
+### US3 — Find a book by title or author (Priority: P3)
 
-## Assumptions
+A reader narrows the existing list with a case-insensitive substring query.
 
-- BookNook is **single-user**; there is no authentication or sharing in this feature.
-- Data is **persisted locally** and the app is usable **offline**.
-- Title and author are free text; no external catalog lookup is assumed.
-- "Library" means the full set of the user's books regardless of shelf membership.
+**FR-011:** Trim the query; match **title OR author**, then combine that result
+with the status filter using **AND**. A blank query matches all books permitted
+by the status filter. Preserve ordering, never persist the query, and show a
+no-match message when appropriate. No fuzzy search, new storage fields, or new
+application files are requested.
+
+**Later acceptance:** With fictional `Orbit` by `Ada` marked `read` and `Harbor`
+by `Bo` marked `unread`, ` ORB ` matches the first title; `ADA` matches its author.
+Combining `ada` with `unread` gives no matches. A whitespace-only query with
+`unread` shows `Harbor`; clearing both controls shows both books. An unmatched
+query shows feedback; refresh clears query/filter but retains both books/statuses.
+Keyboard operation and all base safety requirements still hold.
+
+- [ ] CR-001 scope and updated artifacts were reviewed before changing behavior.
+- [ ] FR-011 tests, browser evidence, and FR-001–FR-010 regressions were reviewed.
