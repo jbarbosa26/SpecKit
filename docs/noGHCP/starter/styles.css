@@ -1,0 +1,24 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #17212b;
+  background: #f4f6f8;
+  line-height: 1.5;
+}
+
+body { margin: 0; }
+main { max-width: 48rem; margin: 0 auto; padding: 1.5rem; }
+section { margin: 1.5rem 0; }
+label { display: block; font-weight: 600; }
+input, select, button { font: inherit; padding: 0.5rem; }
+input { box-sizing: border-box; width: 100%; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid #084fbe; outline-offset: 3px; }
+[aria-invalid="true"] { border: 2px solid #9b1820; }
+.error { color: #9b1820; font-weight: 600; }
+.error:empty { margin: 0.4rem 0; }
+#book-list { list-style: none; padding: 0; }
+#book-list li { background: #fff; border: 1px solid #b4bdc7; padding: 1rem; margin: 0.8rem 0; }
+#book-list h3, #book-list p { margin: 0 0 0.5rem; overflow-wrap: anywhere; }
+#status-message { font-weight: 600; }
+[hidden] { display: none; }

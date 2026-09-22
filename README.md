@@ -1,10 +1,11 @@
 # Spec-Driven Development with GitHub Spec Kit
 
 An independent, security-focused workshop for learning **spec-driven development
-(SDD)** with **GitHub Spec Kit 1.0.1**. Work from intent to reviewed requirements,
-architecture, tasks, implementation, and evidence, then repeat the loop for a
-controlled change. AI-generated artifacts are proposals to evaluate, not proof
-that a system is correct, secure, or ready for production.
+(SDD)** with **GitHub Spec Kit 1.0.1**, plus a fully manual, no-AI companion
+track. Work from intent to reviewed requirements, architecture, tasks,
+implementation, and evidence, then repeat the loop for a controlled change.
+Artifacts, whether human-written or AI-assisted, are not proof that a system
+is correct, secure, or ready for production.
 
 **Workshop baseline reviewed: September 22, 2026.** Spec Kit is pinned to the
 [v1.0.1 release](https://github.com/github/spec-kit/releases/tag/v1.0.1), source
@@ -16,15 +17,19 @@ documentation can describe newer behavior.
 
 | Document | Use it for |
 | --- | --- |
-| [Student prerequisites and quick reference](./docs/02-spec-kit-breakdown.md) | Complete before attending: tools, agent access, safe permissions, pinned installation, and a readiness check. |
+| [Copilot student prerequisites and quick reference](./docs/02-spec-kit-breakdown.md) | Complete before the Copilot track: tools, agent access, safe permissions, pinned installation, and a readiness check. |
 | [What is spec-driven development?](./docs/01-what-is-spec-driven-development.md) | Understand the method, its limits, and the architect's review responsibilities. |
-| [Hands-on lab](./docs/03-walkthrough-and-lab.md) | Follow **390 minutes (6.5 hours)** of guided hands-on exercises, excluding prework and breaks. |
+| [Copilot hands-on lab](./docs/03-walkthrough-and-lab.md) | Follow **390 minutes (6.5 hours)** of guided exercises in VS Code, excluding prework and breaks. |
+| [noGHCP: fully manual workshop](./docs/noGHCP/README.md) | A separate **6.5-hour** route using human-authored documents, manual coding exercises, and a local starter. No AI tools, accounts, or Specify CLI required. |
 | [Adapting an existing project](./docs/04-adapting-existing-projects.md) | Apply SDD incrementally, upgrade safely, and assess the gap to production/cloud use. |
 | [Reference artifacts](./examples/README.md) | Compare your constitution, specification, plan, and tasks with aligned examples; do not substitute them for your own decisions. |
 
-Before the workshop, complete the prerequisite brief. During the workshop, keep
-the lab open alongside your editor. Read the brownfield guide after completing
-the lab or when applying the method to an existing codebase.
+Choose **one track** and complete its prerequisites before attending. GitHub
+Copilot is required for the original VS Code instructions, **not for noGHCP**.
+The noGHCP route is fully manual: Git, Node, a browser, and any editor are enough.
+It can be completed offline after preparing the tools and materials.
+Keep your chosen lab open alongside your editor.
+Read the brownfield guide when applying SDD to an existing codebase.
 
 ## What you will build and learn
 
@@ -33,13 +38,16 @@ persist them in browser storage, change reading status, and filter the list.
 Then use an explicit change request to add search without breaking the approved
 baseline.
 
-The required path uses **GitHub Copilot in VS Code**, Spec Kit's default
-**skills** integration, **Node.js 24 LTS** on its latest security patch, plain
+The original track uses **GitHub Copilot in VS Code** with Spec Kit's skills.
+In **noGHCP**, students create the corresponding documents by hand and implement
+spec-first extensions to a supplied add/list/persist baseline. No agent or
+slash commands are used. The shared application design uses **Node.js 24 LTS**
+on its latest security patch, plain
 HTML/CSS/JavaScript, and Node's built-in test runner. No third-party JavaScript
 packages, native database toolchains, Azure subscription, deployment, or API
-keys are needed for the application. Your approved coding agent still requires
-network access and an appropriate account/request allowance; usage may cost
-money. The app itself runs at `http://127.0.0.1:4173` with fictional local data.
+keys are needed for the application. The **Copilot track only** requires an
+approved agent account, network access, and request allowance; usage may cost
+money. The app runs at `http://127.0.0.1:4173` with fictional local data.
 
 You will practice requirements clarification, threat modeling, architecture
 tradeoffs, test-first implementation, negative/security testing, accessibility
@@ -47,11 +55,23 @@ checks, requirements-to-evidence traceability, and change control. The time
 allocations are **facilitator budgets**, not a guarantee of agent response speed
 or a production-readiness certification.
 
-This repository contains teaching documents, not a completed application.
-Create BookNook in a **separate scratch directory** as instructed in the lab.
-There is no application build or test suite to run in this repository.
+This repository contains teaching documents and a deliberately partial
+[manual-track starter](./docs/noGHCP/starter/). It supplies the add/list/persist
+baseline; status/filter and search remain student exercises. Work in a
+**separate scratch directory** as instructed in your chosen lab.
 
-## Version-correct command flow
+To check the supplied starter from the repository root, without installing
+packages:
+
+```text
+npm --prefix docs/noGHCP/starter test
+npm --prefix docs/noGHCP/starter run check
+```
+
+## Copilot track: version-correct command flow
+
+**Skip this CLI setup in noGHCP.** The manual track uses Spec Kit's artifact
+concepts, not an AI-free CLI mode; Python, `uv`, and Specify are not prerequisites.
 
 Install the verified 1.0.1 source using `uv`, after completing the prerequisites.
 This source-commit pin avoids relying on a release tag remaining unchanged:
@@ -68,7 +88,7 @@ lab handles Git explicitly without installing extensions.
 
 The following are **agent-chat commands, not terminal commands**:
 
-| Step | Default Copilot skill | Result to review |
+| Step | Copilot skill | Result to review |
 | --- | --- | --- |
 | Govern | `/speckit-constitution` | `.specify/memory/constitution.md` |
 | Specify | `/speckit-specify` | `specs/<number>-<feature>/spec.md` |
@@ -88,14 +108,16 @@ For 1.0.1, Copilot's default files live in
 `.github/skills/speckit-<name>/SKILL.md`. The older dotted `/speckit.specify`
 syntax belongs to Copilot's explicitly selected **commands** mode, not this
 lab's default. Claude's default skills also use hyphens; Gemini uses dotted
-commands. See the [integration reference](./docs/02-spec-kit-breakdown.md#cli-reference)
-before switching agents. The methodology transfers; syntax, permissions, and
-generated files are agent-specific.
+commands. Those are other AI integrations, not the manual track.
+[noGHCP](./docs/noGHCP/README.md) replaces agent invocations with human writing,
+decisions, edits, and review. The [integration reference](./docs/02-spec-kit-breakdown.md#cli-reference)
+covers AI-assisted options separately.
 
 ## Security and scope
 
-Use an ordinary user account, a disposable browser profile, fictional data, and
-manual tool approvals. Inspect generated scripts and diffs before execution.
+Use an ordinary user account, a disposable browser profile, and fictional data.
+Inspect supplied or generated scripts and diffs before execution. For the
+AI-assisted track, retain manual tool approvals.
 Do not enable blanket auto-approval, expose the local server, connect production
 repositories or credentials, install unreviewed extensions/MCP servers, or
 publish tasks with `/speckit-taskstoissues` during the lab. Ignore rules do not

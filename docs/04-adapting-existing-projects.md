@@ -4,6 +4,11 @@ Most teams inherit code, conventions, tests, and undocumented behavior. Introduc
 
 This guide targets **GitHub Spec Kit v1.0.1**, commit `9118ed15a0ba65053469a94c560ea5d233f75884`, with **GitHub Copilot skills in VS Code**. Other integrations can differ in syntax and permissions; swapping a name is not a complete migration procedure.
 
+For a complete workshop without AI tools, use
+[manual noGHCP](./noGHCP/README.md), which teaches spec-first extensions to a
+supplied local baseline. The brownfield principles below transfer, but this
+guide's integration-specific commands remain for the original Copilot track.
+
 - Adopt SDD **incrementally**, for a bounded change rather than a big-bang rewrite or an invented specification of the entire legacy system.
 - Capture governing standards in the constitution; put feature-specific existing behavior, dependencies, and uncertainties in the spec and plan.
 - Use tests, reviewed diffs, and human acceptance checks as evidence. Documents alone do not demonstrate correctness or compliance.

@@ -3,6 +3,11 @@
 Build with specifications, tests and human review - not trust in generated code.
 Use **Spec Kit v1.0.1 / VS Code Copilot skills**; complete [prework](./02-spec-kit-breakdown.md) first.
 
+**Without AI tools?** Follow the separate
+[fully manual noGHCP series](./noGHCP/README.md), using human-written artifacts
+and local coding exercises. No agent, account, or Specify CLI is required there.
+Choose one track rather than mixing their setup instructions.
+
 This fictional single-user reading-list demo is **not production architecture**.
 No Azure/cloud, auth, application API, database, telemetry, import/export, delete or external assets.
 Copilot is external: use fictional, non-sensitive content and an approved account/policy.

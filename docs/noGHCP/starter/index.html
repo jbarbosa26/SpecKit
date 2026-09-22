@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BookNook - manual workshop starter</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/src/app.js"></script>
+</head>
+<body>
+  <main>
+    <h1>BookNook</h1>
+    <p>A manual teaching starter: add, list, and save books. Status changes and
+      filtering are exercises, not completed features.</p>
+    <p>Use fictional, non-secret data only. Browser storage is plaintext, is not
+      a backup, and may be lost. Use one tab at http://127.0.0.1:4173.</p>
+    <noscript>This application needs JavaScript to load and save your library.</noscript>
+    <section aria-labelledby="add-heading">
+      <h2 id="add-heading">Add a book</h2>
+      <form id="book-form" novalidate>
+        <label for="title">Title (1-120 UTF-16 code units after trimming)</label>
+        <input id="title" name="title" type="text" required disabled
+          aria-describedby="title-error" aria-invalid="false">
+        <p id="title-error" class="error"></p>
+        <label for="author">Author (1-80 UTF-16 code units after trimming)</label>
+        <input id="author" name="author" type="text" required disabled
+          aria-describedby="author-error" aria-invalid="false">
+        <p id="author-error" class="error"></p>
+        <button type="submit" disabled>Add book</button>
+        <p id="form-error" class="error" aria-live="polite"></p>
+      </form>
+    </section>
+    <section aria-labelledby="library-heading">
+      <h2 id="library-heading">Your library</h2>
+      <div id="status-controls" hidden>
+        <label for="status-filter">Reading status</label>
+        <select id="status-filter" disabled>
+          <option value="all">All books</option>
+          <option value="unread">Unread</option>
+          <option value="read">Read</option>
+        </select>
+      </div>
+      <ul id="book-list"></ul>
+      <p id="empty-state" hidden></p>
+    </section>
+    <p id="status-message" role="status" aria-live="polite" aria-atomic="true">Loading library...</p>
+  </main>
+</body>
+</html>

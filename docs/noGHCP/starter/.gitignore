@@ -1,0 +1,13 @@
+# Local secrets; ignoring files does not protect files already tracked.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.pfx
+*.p12
+node_modules/
+npm-debug.log*

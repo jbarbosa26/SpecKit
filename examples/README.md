@@ -6,9 +6,9 @@ The toolkit baseline is the [v1.0.1 release](https://github.com/github/spec-kit/
 
 ## Read in workflow order
 
-These are **GitHub Copilot skills in VS Code**, not terminal commands. The guided path uses the v1.0.1 default skills mode, with definitions under `.github\skills\speckit-<name>\SKILL.md`; do not substitute legacy dotted command syntax.
+The commands below are **Copilot agent-session skills**, not terminal commands. The original track uses `.github\skills\speckit-<name>\SKILL.md`. In the **[fully manual noGHCP track](../docs/noGHCP/README.md)**, students write equivalent artifacts and implement extensions themselves; no AI tool or CLI executes these steps. The application contracts are shared, but the supplied US1 starter and manual exercises have their own instructions.
 
-| Artifact | Purpose | Copilot skill |
+| Artifact | Purpose | Copilot-track skill (not used in noGHCP) |
 | --- | --- | --- |
 | [`constitution.md`](./constitution.md) | Principles, early security/accessibility constraints, and teaching governance | `/speckit-constitution` |
 | [`spec.md`](./spec.md) | User needs, scope, requirements, and acceptance criteria: WHAT/WHY | `/speckit-specify` |

@@ -1,5 +1,10 @@
 # Student prerequisites and Spec Kit 1.0.1 quick reference
 
+**This brief is for the Copilot track.** To complete the workshop without any AI
+tool, account, or Specify CLI, use the separate
+[manual noGHCP prerequisites](./noGHCP/01-prerequisites.md) and
+[instruction series](./noGHCP/README.md) instead.
+
 **Complete this brief before the workshop.** Setup is not part of the
 390-minute hands-on lab. No Azure subscription or application API key is
 required. You do need internet access and an organization-approved AI coding
@@ -157,8 +162,10 @@ branches. The active feature is selected through `.specify/feature.json`
 | `--integration gemini` | Approved Gemini CLI session in the project | `/speckit.specify` |
 | Copilot with `--integration-options="--commands"` (legacy, not this lab) | VS Code Copilot chat | `/speckit.specify` |
 
-These are **chat invocations**, not executable terminal commands. Other agents
-are reference alternatives, not separately rehearsed end-to-end workshop paths.
+These are **chat invocations**, not executable terminal commands. Claude and
+Gemini are reference AI integrations, not complete alternate workshop tracks.
+The separate [noGHCP series](./noGHCP/README.md) is fully manual and uses none of
+these agent commands. Neither route claims a rehearsed end-to-end classroom result.
 Do not mix integration modes or assume every agent has the same permission UI.
 Legacy Copilot commands mode generates `.github/agents/`, `.github/prompts/`,
 and VS Code settings including script auto-approvals; review/remove those
