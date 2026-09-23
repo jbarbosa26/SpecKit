@@ -154,7 +154,9 @@ Vibe coding is excellent for exploration and momentum. SDD is what you reach for
 
 ## Next Steps / Further Reading
 
-SDD is a methodology, not a product, and does not require AI. This repository offers **GitHub Copilot in VS Code using Spec Kit skills** and a separate **[fully manual noGHCP route](./noGHCP/README.md)**. In noGHCP, humans write and review the artifacts, then implement extensions to a supplied local baseline; no AI agent or Specify CLI is required.
+SDD is a methodology, not a product, and does not require AI. This repository offers **GitHub Copilot in VS Code using Spec Kit skills** and a separate **[noGHCP CLI-and-manual route](./noGHCP/README.md)**. In noGHCP, the official pinned Specify CLI and helpers seed local scaffolding; humans write and review the artifacts, then implement extensions to a supplied local baseline. Python, uv, and Specify are required, but no AI tool or agent account is needed.
+
+Spec Kit's slash commands are agent Markdown instructions, not native terminal commands. The no-AI route provides [manual equivalents for those phases](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents), not a custom runner or automatic semantic analysis. Generated guidance and workflow definitions are not executed in that route.
 
 The separate **390-minute workshop** (excluding pre-work and breaks) builds **BookNook**, a single-user local browser demo using vanilla HTML/CSS/JavaScript and `localStorage`. Node.js **24 LTS** serves static files and runs built-in tests; there is no application backend or third-party npm dependency. Use fictional data only. The workshop creates **no Azure deployments, IaC, or cloud resources and incurs no Azure resource costs**; agent usage may cost money. Its checks are learning evidence, not security, accessibility, compliance, or production-readiness certification.
 

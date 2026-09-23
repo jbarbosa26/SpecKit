@@ -4,8 +4,11 @@ Build with specifications, tests and human review - not trust in generated code.
 Use **Spec Kit v1.0.1 / VS Code Copilot skills**; complete [prework](./02-spec-kit-breakdown.md) first.
 
 **Without AI tools?** Follow the separate
-[fully manual noGHCP series](./noGHCP/README.md), using human-written artifacts
-and local coding exercises. No agent, account, or Specify CLI is required there.
+[noGHCP CLI-and-manual series](./noGHCP/README.md), using the official pinned
+Specify CLI with Python/uv, generic scaffolding, human-written artifacts, and
+local coding exercises. No AI tool or agent account is required there. Slash
+commands are agent instructions, not executable terminal commands; that series
+provides [manual phase equivalents](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents).
 Choose one track rather than mixing their setup instructions.
 
 This fictional single-user reading-list demo is **not production architecture**.

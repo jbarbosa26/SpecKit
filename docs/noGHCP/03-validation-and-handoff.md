@@ -2,11 +2,13 @@
 
 [Series overview](./README.md) -> [01: Prework](./01-prerequisites.md) -> [02: Lab](./02-hands-on-lab.md) -> **03: Validation and handoff**
 
-Continue in your scratch `booknook-manual` project after Gate 4, not in the teaching repository. The supplied starter already implemented US1; you have manually implemented US2 status/filter behavior and changed `STATUS_FEATURE_ENABLED` to `true`. T05/T06 remain pending for the base validation and acceptance below; search is still absent. This document budgets **140 minutes**: checkpoint 5 (60), checkpoint 6 search (60), handoff (20). With document 02's 250 minutes, the total is **390**, excluding prework/breaks. These are facilitator budgets, not measured classroom results.
+Continue in your CLI-initialized scratch `booknook-manual` project after Gate 4, not in the teaching repository. The supplied starter already implemented US1; you have manually implemented US2 status/filter behavior and changed `STATUS_FEATURE_ENABLED` to `true`. T05/T06 remain pending for the base validation and acceptance below; search is still absent. This document budgets **140 minutes**: checkpoint 5 (60), checkpoint 6 search (60), handoff (20). With document 02's 250 minutes, the total is **390**, excluding prework/breaks. These are facilitator budgets, not measured classroom results.
 
-This is a fully manual SDD companion: use your editor, browser and ordinary shells, with no AI tools or accounts. **Terminal A** runs only your foreground server. **Terminal B** runs checks and Git commands. Both use the scratch root; browser-console snippets run only in the disposable profile. No additional installation, dependencies or generated workflow is needed.
+This track uses the official pinned Specify CLI for scaffolding and supported helpers, then [manual equivalents of the slash-command phases](./README.md#slash-command-phases-and-their-no-ai-equivalents): use your editor, browser and ordinary shells, with no AI tools or accounts. **Terminal A** runs only your foreground server. **Terminal B** runs checks and Git commands. Both use the scratch root; browser-console snippets run only in the disposable profile. No additional installation or application dependencies are needed. `.manual/commands/speckit.<phase>.md` files are guidance, not executable terminal slash commands; generated workflow definitions are not executed. Do not run `specify workflow run`, install extensions/presets, or publish tasks as issues.
 
-Keep your manually authored `.specify/memory/constitution.md` and `specs/001-booknook/{spec,plan,tasks,quickstart}.md`. Those are literal artifact locations, not a feature-pointer lookup. In `quickstart.md`, copy and fill this evidence row for each gate; use actual observations, never raw storage dumps:
+**Confirm the active feature before editing:** inspect `.specify/feature.json` and the actual feature directory. The fresh lab requires `specs/001-booknook`; the pointer, not the current Git branch or a helper's legacy `BRANCH_NAME` label, identifies the selected feature. If the pointer is missing or selects another directory, stop and reconcile the intended workspace/feature before using the literal paths below. Do not blindly edit `001-booknook`, overwrite a changed pointer, or rerun initialization to conceal a mismatch.
+
+Keep the six human-authored documents: `.specify/memory/constitution.md`, `specs/001-booknook/{spec,plan,tasks,quickstart}.md`, and `specs/001-booknook/checklists/requirements.md`. Preserve the reviewed generic `.manual` guidance and managed `.specify` scaffolding as well. The requirements checklist is human review; `check-prerequisites` checks structural file prerequisites, not semantic quality or acceptance. In `quickstart.md`, copy and fill this evidence row for each gate; use actual observations, never raw storage dumps:
 
 ```text
 | FR / test or browser case | Command / action | Expected | Observed / date | Self or peer reviewer | Gap / next action |
@@ -197,27 +199,37 @@ Resume: same load-error/write-blocking UI, not an uncaught exception. Remove bre
 
 ### Preserve a reviewed no-commit index baseline
 
-Review DOM sinks, storage catches, all three test files, server map and package scripts (`start`, `test`, `check` only; no dependencies). Map FR-001..010 to actual evidence in `quickstart.md`; preserve the US2 red/green record from document 02 and leave unfinished items pending. Only after base approval inspect files for secrets and stage this explicit list in the scratch project.
+Review DOM sinks, storage catches, all three test files, server map and package scripts (`start`, `test`, `check` only; no dependencies). Map FR-001..010 to actual evidence in `quickstart.md`; preserve the US2 red/green record from document 02 and leave unfinished items pending. Reconcile the human requirements review in `checklists/requirements.md`. Only after base approval inspect files for secrets and stage the explicit list below in the scratch project.
 
 In **`specs/001-booknook/tasks.md`**, mark **T05** complete only after the test, syntax, browser and security regressions above pass with observed evidence in **`specs/001-booknook/quickstart.md`**. Then self-review or peer-review the evidence and remaining limits before accepting US2 and marking **T06** complete. Record the reviewer and acceptance decision before staging. If a required check is missing or fails, keep the corresponding task pending and repair/repeat it; do not create the index baseline or start CR-001 yet.
 
-**Terminal B - PowerShell 7 or Bash**
+Review `.manual`, `.specify`, and `specs` contents before staging, including hidden files. Keep shared command guidance, templates, scripts, memory, default workflow definitions, and configuration/init/integration metadata and manifests trackable. A data-only guidance or workflow file is not executed merely because it is tracked. Preserve the managed `.specify/.gitignore`, which excludes the machine-local feature pointer.
+
+**Terminal B - inspect before staging, PowerShell 7 or Bash**
 ```text
-git add -- .gitignore .specify specs package.json server.mjs index.html styles.css src/domain.js src/storage.js src/app.js tests/domain.test.js tests/storage.test.js tests/server.test.js
+git check-ignore .specify/feature.json
+git status --short --untracked-files=all
+git status --short --ignored
+```
+**Gate:** `git check-ignore` prints `.specify/feature.json`, and it is not already tracked. If not, stop and inspect the managed ignore file and index before staging. Review unexpected files individually; do not force-add the pointer or hide unexplained files with broad new ignore patterns.
+
+**Terminal B - stage the reviewed baseline, PowerShell 7 or Bash**
+```text
+git add -- .gitignore .manual .specify specs package.json server.mjs index.html styles.css src/domain.js src/storage.js src/app.js tests/domain.test.js tests/storage.test.js tests/server.test.js
 git ls-files --cached
 git --no-pager diff --cached --stat
 git --no-pager diff --cached
 git --no-pager diff --exit-code
 git status --short
 ```
-**Gate 5:** the index contains only `.gitignore`, the five named manual artifacts inside `.specify`/`specs`, and the ten application/test files listed above. The staged diff is the reviewed US1+US2 base; the unstaged diff exits zero, with no unexplained untracked files. Inspect directories before staging; never `git add .`. Staging is neither publishing nor durable history/browser backup. **Failure:** inspect unexplained files/changes, do not hide them. **Next:** preserve this index unchanged throughout CR-001; no further staging, commits or pushes.
+**Gate 5:** the index contains `.gitignore`, the six named human-authored documents, the reviewed generic `.manual` guidance and managed shared `.specify` scaffolding/metadata, and the ten explicitly listed application/test files. It does not contain `.specify/feature.json`, secrets, or unexplained extras. The six authored documents are not the whole generated-file inventory. The staged diff is the reviewed US1+US2 base; the unstaged diff exits zero, with no unexplained untracked files. Inspect directories before staging; never `git add .`. Staging is neither publishing nor durable history/browser backup. **Failure:** inspect unexplained files/changes, do not hide them. **Next:** preserve this index unchanged throughout CR-001; no further staging, commits or pushes.
 
 Stop your server with Ctrl+C in A before the change.
 
 <a id="checkpoint-6"></a>
 ## Checkpoint 6: Search and handoff - 80 minutes
 
-Search budget (60 minutes): artifacts/review 20, red/implementation 20, regression 15, acceptance 5; handoff uses the remaining 20 minutes below. Extend the existing feature by hand, not a new directory or architecture.
+Search budget (60 minutes): artifacts/review 20, red/implementation 20, regression 15, acceptance 5; handoff uses the remaining 20 minutes below. Extend the existing feature by hand, not a new directory or architecture. Reconfirm `.specify/feature.json` still selects `specs/001-booknook`. CR-001 is an amendment: do not rerun `specify init`, `create-new-feature`, `setup-plan`, or `setup-tasks`, and do not recopy templates over reviewed artifacts. These are manual phase equivalents, not native slash-command execution.
 
 ### Write and review the change before code
 
@@ -260,7 +272,7 @@ Append these dependency tasks to **`tasks.md`**; retain earlier completed tasks.
 - [ ] CR5 / FR-001..011, after CR4: repeat security/regressions; review diff/evidence.
 ```
 
-**Pre-code gate:** self-review or peer-review every FR-011 decision against D06 and B07 below. Check FR-004 filtering, FR-006 error preservation, FR-008 keyboard access and FR-010 messages remain covered. Record reviewer, gaps and resolutions. In B run `git --no-pager diff` and `git status --short`: only manual artifacts should have changed so far. Resolve contradictions before writing tests or implementation.
+**Pre-code gate:** self-review or peer-review every FR-011 decision against D06 and B07 below. Check FR-004 filtering, FR-006 error preservation, FR-008 keyboard access and FR-010 messages remain covered. Update `checklists/requirements.md` with the human review of this amendment; record reviewer, gaps and resolutions without treating a helper's successful exit as quality evidence. In B run `git --no-pager diff` and `git status --short`: only manual artifacts should have changed so far. Resolve contradictions before writing tests or implementation.
 
 ### Observe red, then write the predicate
 
@@ -423,12 +435,14 @@ git --no-pager diff
 ```
 The **staged** diff shows the base; the **unstaged** diff shows CR-001 against it. Review both and all untracked files separately; neither diff alone is the whole project. Do not stage the change or commit/push.
 
-- The five manual artifacts agree; spec decisions, plan contracts and dependency tasks map FR-001..011 to actual test/browser/security evidence, self/peer reviewers and explicit remaining gaps.
+- The six human-authored documents agree, including the requirements checklist; spec decisions, plan contracts and dependency tasks map FR-001..011 to actual test/browser/security evidence, self/peer reviewers and explicit remaining gaps. Shared generated scaffolding remains reviewed and tracked; the local feature pointer remains ignored.
 - Exactly ten app/test files and three npm scripts; no dependencies/install step. Red evidence is behavioral, not missing modules; analysis/checklists never substitute for execution.
 - Explain save-before-display, strict bounded schema, failed-load write blocking, inert rendering, real listener/Host/route/header controls and their limits.
 - Demonstrate a cold restart: Ctrl+C **your** server in A, run `npm start` in A, repeat listener/probe checks in B and demonstrate add/toggle/search at the exact origin.
 - No production/WCAG certification, encryption/backup, multi-tab conflict handling, multi-user isolation or cloud deployment is claimed. A real-data service requires redesign and review.
 
+**Manual equivalent of `/speckit.converge` (reference label, not a terminal command):** reconcile FR-001..011, the constitution, spec, plan, tasks, and requirements checklist with the actual test/browser/security evidence in `quickstart.md`. Distinguish missing evidence from a demonstrated defect. Only if gaps remain, append new **pending** remediation tasks with requirement IDs, dependencies, and the required recheck; preserve earlier tasks and evidence. Record no additional work when the review finds none, without claiming certification. This is human assessment, not native semantic analysis or automatic code writing. Any later repair needs a separate reviewed implementation slice and regression checks; do not silently change the application or the staged base during handoff.
+
 **Final gate:** you or a peer can follow recorded evidence and reproduce the demo. **Failure:** list unfinished work and the last verified gate, not a fabricated pass. Stop only your foreground server with Ctrl+C in A, then close the disposable profile. Preserve scratch artifacts/index; no broad deletion or Git reset.
 
-After the required tools and workshop materials are available, these manual exercises run locally offline. No AI service/account, generated workflow, commit or publication is required. These instructions are not a claim that browser checks or a classroom rehearsal occurred. Return to the [noGHCP overview](./README.md).
+After the required tools and workshop materials are available, these CLI-initialized manual exercises run locally offline. No AI service/account, workflow execution, commit or publication is required. These instructions are not a claim that browser checks or a classroom rehearsal occurred. Return to the [noGHCP overview](./README.md).

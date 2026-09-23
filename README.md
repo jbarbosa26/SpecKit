@@ -1,8 +1,8 @@
 # Spec-Driven Development with GitHub Spec Kit
 
 An independent, security-focused workshop for learning **spec-driven development
-(SDD)** with **GitHub Spec Kit 1.0.1**, plus a fully manual, no-AI companion
-track. Work from intent to reviewed requirements, architecture, tasks,
+(SDD)** with **GitHub Spec Kit 1.0.1**, using either Copilot or a no-AI
+CLI-and-manual companion track. Work from intent to reviewed requirements, architecture, tasks,
 implementation, and evidence, then repeat the loop for a controlled change.
 Artifacts, whether human-written or AI-assisted, are not proof that a system
 is correct, secure, or ready for production.
@@ -20,14 +20,15 @@ documentation can describe newer behavior.
 | [Copilot student prerequisites and quick reference](./docs/02-spec-kit-breakdown.md) | Complete before the Copilot track: tools, agent access, safe permissions, pinned installation, and a readiness check. |
 | [What is spec-driven development?](./docs/01-what-is-spec-driven-development.md) | Understand the method, its limits, and the architect's review responsibilities. |
 | [Copilot hands-on lab](./docs/03-walkthrough-and-lab.md) | Follow **390 minutes (6.5 hours)** of guided exercises in VS Code, excluding prework and breaks. |
-| [noGHCP: fully manual workshop](./docs/noGHCP/README.md) | A separate **6.5-hour** route using human-authored documents, manual coding exercises, and a local starter. No AI tools, accounts, or Specify CLI required. |
+| [noGHCP: official CLI and manual workshop](./docs/noGHCP/README.md) | A separate **6.5-hour** route using the pinned Specify CLI, human-authored documents, manual coding exercises, and a local starter. No AI tools or agent accounts required. |
 | [Adapting an existing project](./docs/04-adapting-existing-projects.md) | Apply SDD incrementally, upgrade safely, and assess the gap to production/cloud use. |
 | [Reference artifacts](./examples/README.md) | Compare your constitution, specification, plan, and tasks with aligned examples; do not substitute them for your own decisions. |
 
 Choose **one track** and complete its prerequisites before attending. GitHub
 Copilot is required for the original VS Code instructions, **not for noGHCP**.
-The noGHCP route is fully manual: Git, Node, a browser, and any editor are enough.
-It can be completed offline after preparing the tools and materials.
+The noGHCP route requires Git, a current patched Python **3.12** (CLI minimum:
+3.11), approved **uv**, **Specify 1.0.1**, patched **Node 24 LTS**, a browser,
+and any text editor. It can be completed offline after preparing the tools and materials.
 Keep your chosen lab open alongside your editor.
 Read the brownfield guide when applying SDD to an existing codebase.
 
@@ -39,9 +40,13 @@ Then use an explicit change request to add search without breaking the approved
 baseline.
 
 The original track uses **GitHub Copilot in VS Code** with Spec Kit's skills.
-In **noGHCP**, students create the corresponding documents by hand and implement
-spec-first extensions to a supplied add/list/persist baseline. No agent or
-slash commands are used. The shared application design uses **Node.js 24 LTS**
+In **noGHCP**, the official CLI and shell helpers seed scaffolding; students
+write and review the documents and implement spec-first extensions to a supplied
+add/list/persist baseline. **Slash commands are agent Markdown instructions, not
+native terminal commands:** installing Python, Node, and Specify does not make
+them executable without an agent. Use the clearly labeled
+[manual phase equivalents](./docs/noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents),
+not a custom runner or an AI tool. The shared application design uses **Node.js 24 LTS**
 on its latest security patch, plain
 HTML/CSS/JavaScript, and Node's built-in test runner. No third-party JavaScript
 packages, native database toolchains, Azure subscription, deployment, or API
@@ -70,8 +75,13 @@ npm --prefix docs/noGHCP/starter run check
 
 ## Copilot track: version-correct command flow
 
-**Skip this CLI setup in noGHCP.** The manual track uses Spec Kit's artifact
-concepts, not an AI-free CLI mode; Python, `uv`, and Specify are not prerequisites.
+Both tracks use the pinned official CLI. For **noGHCP**, follow its
+[prerequisites](./docs/noGHCP/01-prerequisites.md) and
+[generic initialization](./docs/noGHCP/02-hands-on-lab.md#checkpoint-1) instead of
+the Copilot integration and agent-chat steps below. Its initializer is
+`specify init booknook-manual --integration generic --integration-options="--commands-dir .manual/commands" --script ps`
+(use `--script sh` for Bash), in a new scratch location. Follow the full lab's
+guards and manual Git initialization; do not initialize twice or add extensions.
 
 Install the verified 1.0.1 source using `uv`, after completing the prerequisites.
 This source-commit pin avoids relying on a release tag remaining unchanged:
@@ -108,10 +118,14 @@ For 1.0.1, Copilot's default files live in
 `.github/skills/speckit-<name>/SKILL.md`. The older dotted `/speckit.specify`
 syntax belongs to Copilot's explicitly selected **commands** mode, not this
 lab's default. Claude's default skills also use hyphens; Gemini uses dotted
-commands. Those are other AI integrations, not the manual track.
-[noGHCP](./docs/noGHCP/README.md) replaces agent invocations with human writing,
-decisions, edits, and review. The [integration reference](./docs/02-spec-kit-breakdown.md#cli-reference)
-covers AI-assisted options separately.
+commands. Those are other AI integrations, not the no-AI track. Generic
+initialization writes `.manual/commands/speckit.<phase>.md` as guidance only.
+[noGHCP](./docs/noGHCP/README.md) uses supported CLI scaffolding and helpers,
+then replaces agent invocations with human writing, decisions, edits, and review.
+Generated workflow files are not executed; do not run `specify workflow run`,
+install extensions/presets, or publish tasks as issues in that track.
+The [integration reference](./docs/02-spec-kit-breakdown.md#cli-reference)
+distinguishes these modes.
 
 ## Security and scope
 

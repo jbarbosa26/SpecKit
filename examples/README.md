@@ -6,7 +6,7 @@ The toolkit baseline is the [v1.0.1 release](https://github.com/github/spec-kit/
 
 ## Read in workflow order
 
-The commands below are **Copilot agent-session skills**, not terminal commands. The original track uses `.github\skills\speckit-<name>\SKILL.md`. In the **[fully manual noGHCP track](../docs/noGHCP/README.md)**, students write equivalent artifacts and implement extensions themselves; no AI tool or CLI executes these steps. The application contracts are shared, but the supplied US1 starter and manual exercises have their own instructions.
+The commands below are **Copilot agent-session skills**, not terminal commands. The original track uses `.github\skills\speckit-<name>\SKILL.md`. In the **[noGHCP CLI-and-manual track](../docs/noGHCP/README.md)**, the official pinned Specify CLI and helpers seed generic scaffolding; students write and review the content and implement extensions themselves. Its `.manual\commands\speckit.<phase>.md` files are agent Markdown guidance, not executable slash commands. Use the [manual phase equivalents](../docs/noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents), without an AI tool or custom runner. The application contracts are shared, but the supplied US1 starter and manual exercises have their own instructions.
 
 | Artifact | Purpose | Copilot-track skill (not used in noGHCP) |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ The commands below are **Copilot agent-session skills**, not terminal commands. 
 | [`plan.md`](./plan.md) | Architecture, fixed module contracts, risks, and verification approach: HOW | `/speckit-plan` |
 | [`tasks.md`](./tasks.md) | Reviewable, test-first implementation work grouped by user story | `/speckit-tasks` |
 
-Use `/speckit-clarify` to resolve specification ambiguity before planning. After tasks, use `/speckit-analyze` and human review before `/speckit-implement`. Analysis is read-only artifact analysis, **not an operating-system sandbox or proof of safety**. `/speckit-converge` appends remediation tasks rather than changing the application; review those tasks before another implementation slice.
+**In the Copilot track's agent chat**, use `/speckit-clarify` to resolve specification ambiguity before planning. After tasks, use `/speckit-analyze` and human review before `/speckit-implement`. Analysis is read-only artifact analysis, **not an operating-system sandbox or proof of safety**. `/speckit-converge` appends remediation tasks rather than changing the application; review those tasks before another implementation slice. In noGHCP, humans perform these reviews and edits; structural helper checks do not assess requirement quality or replace test evidence.
 
 The student owns the decisions; a peer or facilitator reviews the scope, risks, contracts, and evidence. A `[P]` task marker is only a candidate for parallel work: inspect shared files and dependencies first. No command result replaces human review.
 
@@ -67,6 +67,8 @@ The second iteration includes review and tests, not just code generation. If a s
 The reference filenames here are not an output manifest. In the student's project, the constitution belongs at `.specify\memory\constitution.md`. A feature path such as `specs\001-library-reading-status\` is **illustrative**: inspect **`.specify\feature.json`** and the actual created directory before opening or editing its `spec.md`, `plan.md`, and `tasks.md`.
 
 Do not assume a particular number or slug, or that `research.md`, `data-model.md`, `contracts\`, and `quickstart.md` are all created. Review whichever artifacts the workflow actually produces and ensure the agreed contracts are documented.
+
+The fresh noGHCP lab explicitly selects `specs\001-booknook`; confirm that `.specify\feature.json` still identifies that directory before using its literal paths. That track authors six documents: the constitution, `spec.md`, `plan.md`, `tasks.md`, `quickstart.md`, and `checklists\requirements.md`. They are additional to reviewed generic `.manual` guidance and managed `.specify` templates, scripts, workflow definitions, and metadata. Keep the shared scaffolding trackable, preserve `.specify\.gitignore`, and leave the local feature pointer ignored. Generated guidance/workflow files are not executed.
 
 **Spec Kit v1.0.1 core does not initialize Git or create feature branches.** Feature selection uses `.specify\feature.json`, not the current branch. Git initialization in a student's scratch project is a separate manual step. Do not add extensions, MCP, publishing tasks as issues, automatic commits, or pushes to this baseline; any optional local checkpoint commit needs explicit student approval.
 

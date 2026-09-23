@@ -1,9 +1,11 @@
 # Student prerequisites and Spec Kit 1.0.1 quick reference
 
 **This brief is for the Copilot track.** To complete the workshop without any AI
-tool, account, or Specify CLI, use the separate
-[manual noGHCP prerequisites](./noGHCP/01-prerequisites.md) and
-[instruction series](./noGHCP/README.md) instead.
+tool or agent account, use the separate
+[noGHCP prerequisites](./noGHCP/01-prerequisites.md) and
+[instruction series](./noGHCP/README.md) instead. That route still installs the
+official pinned Specify CLI with Python and uv, uses generic scaffolding and
+supported shell helpers, and performs the development phases manually.
 
 **Complete this brief before the workshop.** Setup is not part of the
 390-minute hands-on lab. No Azure subscription or application API key is
@@ -164,8 +166,13 @@ branches. The active feature is selected through `.specify/feature.json`
 
 These are **chat invocations**, not executable terminal commands. Claude and
 Gemini are reference AI integrations, not complete alternate workshop tracks.
-The separate [noGHCP series](./noGHCP/README.md) is fully manual and uses none of
-these agent commands. Neither route claims a rehearsed end-to-end classroom result.
+The separate [noGHCP series](./noGHCP/README.md) uses the CLI's `generic`
+integration with `--integration-options="--commands-dir .manual/commands"`.
+Its `.manual/commands/speckit.<phase>.md` files are guidance, not executable
+slash commands or native `specify` subcommands. Use that series'
+[manual phase equivalents](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents);
+do not execute generated workflows or install an AI interpreter/custom runner.
+Neither route claims a rehearsed end-to-end classroom result.
 Do not mix integration modes or assume every agent has the same permission UI.
 Legacy Copilot commands mode generates `.github/agents/`, `.github/prompts/`,
 and VS Code settings including script auto-approvals; review/remove those
