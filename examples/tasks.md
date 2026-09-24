@@ -11,6 +11,11 @@ repository**. Inspect `.specify\feature.json` to locate the active feature's
 name. Keep evidence in an existing student artifact (for example its actual
 `quickstart.md`, if present, or `tasks.md`); additional outputs are not guaranteed.
 
+The `npm` commands here work unchanged in **PowerShell 7, Bash, and Windows
+Command Prompt (`cmd.exe`)**. Use the [lab](../docs/03-walkthrough-and-lab.md)
+for each shell's setup, helper, and listener/HTTP alternatives; Command Prompt
+still requires PowerShell 7 for Spec Kit's Windows helpers.
+
 ## Execution Rules
 
 - Base: **US1 P1 add/list/persist**, **US2 P2 toggle/filter**, **FR-001–FR-010**.

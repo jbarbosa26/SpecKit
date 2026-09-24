@@ -4,7 +4,7 @@
 tool or agent account, use the separate
 [noGHCP prerequisites](./noGHCP/01-prerequisites.md) and
 [instruction series](./noGHCP/README.md) instead. That route still installs the
-official pinned Specify CLI with Python and uv, uses generic scaffolding and
+official pinned Specify CLI with Python and either uv or pip, uses generic scaffolding and
 supported shell helpers, and performs the development phases manually.
 
 **Complete this brief before the workshop.** Setup is not part of the
@@ -24,11 +24,15 @@ agent with sufficient usage allowance.
 | Basic skills | Navigate folders, edit text, run terminal commands, and read basic JavaScript. SDD experience is not required. |
 | Git | Install a current approved [Git release](https://git-scm.com/downloads). Git is required for this lab's review/checkpoint workflow, even though Spec Kit core can work without it. |
 | Python | Install a supported, patched [Python version](https://www.python.org/downloads/), **3.11 or newer**, the CLI's minimum. |
-| uv | Install [uv from the official instructions](https://docs.astral.sh/uv/getting-started/installation/) using an approved package manager or reviewed release binary. |
+| CLI installer | Use approved [uv](https://docs.astral.sh/uv/getting-started/installation/) or pip in a dedicated tool environment. The [shared setup guide](./00-tool-setup.md) includes pip alternatives and installing uv with pip when its usual installer is unavailable. |
 | Node.js | Install the latest patched **24.x LTS** from [Node.js](https://nodejs.org/en/download/). Node 20 is end-of-life; do not use it for this workshop. npm is included. |
 | Editor and agent | Install current approved [VS Code](https://code.visualstudio.com/docs/setup/setup-overview), sign in to GitHub Copilot, and confirm that Chat **agent mode** and workspace skills are allowed by your organization's policy. |
-| Shell and browser | Windows: [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows). macOS/Linux: Bash. Use a current browser with DevTools and a disposable profile for fictional lab data. |
-| Listener inspection | Confirm access to `Get-NetTCPConnection` (Windows), `ss` (Linux), or `lsof` (macOS), without elevated privileges. The lab checks the actual server bind address, not just whether a page loads. |
+| Shell and browser | Windows: [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) or Command Prompt (`cmd.exe`), with PowerShell 7 installed for Spec Kit helpers. macOS/Linux: Bash. Use a current browser with DevTools and a disposable profile for fictional lab data. |
+| Listener inspection | Confirm access to `Get-NetTCPConnection` (Windows PowerShell), `netstat` and `findstr` (Windows Command Prompt), `ss` (Linux), or `lsof` (macOS), without elevated privileges. The lab checks the actual server bind address, not just whether a page loads. |
+
+Follow the [shell conventions](../README.md#command-line-shell-options).
+Command Prompt uses the Windows `--script ps` templates and launches reviewed
+helpers with `pwsh`; there is no `--script cmd` option.
 
 Use your employer's approved installation and certificate/proxy configuration.
 Do not pipe a downloaded script directly into a shell, bypass execution policy,
@@ -44,23 +48,43 @@ accounts and permissions; they do not remove usage costs or data-handling rules.
 
 ### 2. Install the pinned workshop toolkit
 
-**Terminal, any directory; the following commands work in PowerShell and Bash:**
+**Terminal, any directory - all shells (PowerShell 7, Bash, or Command Prompt):**
 
 ```text
 git --version
-uv --version
 node --version
 npm --version
 ```
 
 Check Python with `python --version` on Windows or `python3 --version` on
-macOS/Linux. If a command is missing, complete the corresponding installation
-and open a fresh terminal before continuing.
+macOS/Linux. Check PowerShell 7 with `$PSVersionTable.PSVersion` in PowerShell
+or `pwsh --version` in Command Prompt. If a command is missing, complete the
+corresponding installation and open a fresh terminal before continuing.
 
-Install the verified **Spec Kit 1.0.1** source:
+Choose an installer using the [shared setup guide](./00-tool-setup.md).
+For the uv route, require `uv --version` to work; if the normal installer is
+unavailable, use the guide's approved
+[pip installation of uv](./00-tool-setup.md#install-uv-with-pip-when-needed).
+For pip-only, prepare and verify the dedicated environment first and require
+`python -m pip --version` to point there; uv is not required.
 
+Install the verified **Spec Kit 1.0.1** source using **one** route:
+
+**Terminal - all shells, uv route**
 ```text
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the prepared tool environment**
+```text
+python -m pip install "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+Apply the matching [PATH commands](./00-tool-setup.md#add-executable-directories-to-path),
+then verify the resolved executable and CLI:
+
+**Terminal - all shells**
+```text
 specify version
 specify --help
 specify check
@@ -76,21 +100,42 @@ security, or workshop readiness. Missing unrelated agents are not a reason to
 install every tool it lists. VS Code Copilot is the guided path; the separate
 Copilot CLI is not required.
 
-If `specify` is not found after a successful installation:
+If `specify` is not found after a successful **uv** installation, add the
+directory reported by `uv tool dir --bin` using the shared PATH commands.
+For future terminals, uv can update supported shell/user configuration:
 
+**Terminal - all shells, uv route only**
 ```text
 uv tool update-shell
 ```
 
-Open a new terminal and retry `specify version`. If a different version is
-already installed, deliberately replace **that tool environment**, not your
-project files:
+For a **pip** installation, add the verified tool environment's `Scripts`
+(Windows) or `bin` (macOS/Linux) directory instead; `uv tool update-shell` is
+not a pip PATH repair. Restart the terminal application/editor after persistent
+changes and retry `specify version`. Inspect command resolution before
+reinstalling: a different `specify` earlier on PATH can hide the correct one.
 
+If a different version really is installed in the selected environment,
+deliberately replace **that tool environment**, not your project files.
+Use only its installer:
+
+**Terminal - all shells, uv reinstall**
 ```text
 uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the verified tool environment**
+```text
+python -m pip install --force-reinstall "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+**Terminal - all shells, after a successful replacement**
+```text
 specify version
 ```
 
+`--force` and `--force-reinstall` apply to tool installation, never project
+initialization. Do not use pip inside a uv-managed environment.
 Do not run an unpinned install or `specify self upgrade` during class. CLI
 installation and upgrading an existing project's generated files are separate
 operations; see the [brownfield guide](./04-adapting-existing-projects.md).
@@ -118,7 +163,10 @@ or prompt-context boundary.
 
 You are ready when each item is true:
 
-- [ ] Git, Python >=3.11, uv, Node 24.x, and npm resolve in a fresh terminal.
+- [ ] Git, Python >=3.11, Node 24.x, and npm resolve in a fresh terminal.
+- [ ] The selected installer works: uv, or pip in the verified tool environment.
+- [ ] PATH resolves the intended `specify` in each terminal and the editor.
+- [ ] Your chosen shell works; on Windows, `pwsh --version` reports PowerShell 7.
 - [ ] `specify version` shows `1.0.1`.
 - [ ] VS Code Copilot can respond in agent mode under the intended account.
 - [ ] Your organization permits this workflow and you know your usage limits.
@@ -133,7 +181,7 @@ does not count as independently completing the hands-on acceptance checks.
 ## CLI reference
 
 **Terminal:** initialize only a **new** project directory. Run one shell variant,
-not both. The lab explains the subsequent Git setup and checkpoints.
+not all three. The lab explains the subsequent Git setup and checkpoints.
 
 PowerShell:
 
@@ -149,6 +197,12 @@ Bash:
 specify init booknook --integration copilot --script sh
 cd booknook
 specify integration status
+```
+
+Command Prompt (`cmd.exe`, with PowerShell 7 installed for the generated helpers):
+
+```cmd
+specify init booknook --integration copilot --script ps && cd /d booknook && specify integration status
 ```
 
 **Expected:** default Copilot skills under

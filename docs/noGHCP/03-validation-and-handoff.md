@@ -6,6 +6,12 @@ Continue in your CLI-initialized scratch `booknook-manual` project after Gate 4,
 
 This track uses the official pinned Specify CLI for scaffolding and supported helpers, then [manual equivalents of the slash-command phases](./README.md#slash-command-phases-and-their-no-ai-equivalents): use your editor, browser and ordinary shells, with no AI tools or accounts. **Terminal A** runs only your foreground server. **Terminal B** runs checks and Git commands. Both use the scratch root; browser-console snippets run only in the disposable profile. No additional installation or application dependencies are needed. `.manual/commands/speckit.<phase>.md` files are guidance, not executable terminal slash commands; generated workflow definitions are not executed. Do not run `specify workflow run`, install extensions/presets, or publish tasks as issues.
 
+Terminal commands labeled **all shells** work unchanged in **PowerShell 7,
+Bash, and Windows Command Prompt (`cmd.exe`)**. Choose one shell's listener
+check and HTTP probe below. Command Prompt still requires the PowerShell 7
+installation from prework for Spec Kit helpers; see the
+[shell conventions](../../README.md#command-line-shell-options).
+
 **Confirm the active feature before editing:** inspect `.specify/feature.json` and the actual feature directory. The fresh lab requires `specs/001-booknook`; the pointer, not the current Git branch or a helper's legacy `BRANCH_NAME` label, identifies the selected feature. If the pointer is missing or selects another directory, stop and reconcile the intended workspace/feature before using the literal paths below. Do not blindly edit `001-booknook`, overwrite a changed pointer, or rerun initialization to conceal a mismatch.
 
 Keep the six human-authored documents: `.specify/memory/constitution.md`, `specs/001-booknook/{spec,plan,tasks,quickstart}.md`, and `specs/001-booknook/checklists/requirements.md`. Preserve the reviewed generic `.manual` guidance and managed `.specify` scaffolding as well. The requirements checklist is human review; `check-prerequisites` checks structural file prerequisites, not semantic quality or acceptance. In `quickstart.md`, copy and fill this evidence row for each gate; use actual observations, never raw storage dumps:
@@ -24,14 +30,14 @@ Budget: server/listener 15, normal/keyboard 15, adversarial storage 25, review/i
 
 ### Start, inspect the real listener, probe HTTP
 
-**Terminal B - scratch root, baseline regression**
+**Terminal B - all shells, scratch root, baseline regression**
 ```text
 npm test
 npm run check
 ```
 Require green supplied US1 tests and your US2 tests; a missing module or syntax error is a setup fault, not exercise evidence.
 
-**Terminal A - scratch root**
+**Terminal A - all shells, scratch root**
 ```text
 npm start
 ```
@@ -45,6 +51,10 @@ if ($listeners.Count -ne 1 -or $listeners[0].LocalAddress -ne '127.0.0.1') {
 }
 $listeners | Select-Object LocalAddress, LocalPort, OwningProcess
 ```
+**Terminal B - Windows Command Prompt (`cmd.exe`)**
+```cmd
+netstat -ano | findstr /R /C:":4173 .*LISTENING"
+```
 **Terminal B - Linux Bash**
 ```bash
 ss -ltnp 'sport = :4173'
@@ -54,6 +64,10 @@ ss -ltnp 'sport = :4173'
 lsof -nP -iTCP:4173 -sTCP:LISTEN
 ```
 **Gate:** exactly one listener at `127.0.0.1:4173`, correlated with your Node process. `*`, `0.0.0.0`, `::` or another address fails even if HTTP works. **Failure:** stop your server and repair binding; if inspection is unavailable, use an approved OS equivalent, not privilege elevation or HTTP success as binding proof. **Next:** run this raw-target probe (no extra file).
+
+In Command Prompt, read **Local Address** and **PID**, not Foreign Address.
+No matching row fails the gate. The command includes IPv4 and IPv6 listeners,
+so an additional wildcard listener must not be ignored.
 
 **Terminal B - PowerShell 7 or Bash**
 ```text
@@ -94,6 +108,16 @@ for(const path of ['/package.json','/.git/config','/.env','/.specify/memory/cons
 console.log('PASS: routes, raw-target/Host/method denials, HEAD, MIME and headers');
 "
 ```
+
+Command Prompt cannot use the multiline quoted argument above. Use this
+equivalent **single-line** probe instead; percent signs are constructed in
+JavaScript so the shell cannot expand encoded paths as environment variables.
+
+**Terminal B - Windows Command Prompt (`cmd.exe`)**
+```cmd
+node --input-type=module -e "import assert from 'node:assert/strict'; import { request } from 'node:http'; const probe=(path,method='GET',host='127.0.0.1:4173')=>new Promise((resolve,reject)=>{ const req=request({hostname:'127.0.0.1',port:4173,path,method,headers:{Host:host}},res=>{ let body=''; res.setEncoding('utf8'); res.on('data',part=>body+=part); res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body})); }); req.on('error',reject); req.setTimeout(3000,()=>req.destroy(new Error('probe timeout'))); req.end(); }); const q=String.fromCharCode(39),p=String.fromCharCode(37); const expected=['default-src '+q+'none'+q,'script-src '+q+'self'+q,'style-src '+q+'self'+q,'connect-src '+q+'none'+q,'base-uri '+q+'none'+q,'form-action '+q+'none'+q,'frame-ancestors '+q+'none'+q].sort(); const headers=r=>{ assert.deepEqual((r.headers['content-security-policy']||'').split(';').map(x=>x.trim()).filter(Boolean).sort(),expected); assert.equal(r.headers['x-content-type-options'],'nosniff'); assert.equal(r.headers['referrer-policy'],'no-referrer'); }; for(const [path,type] of [['/','text/html'],['/index.html','text/html'],['/styles.css','text/css'],['/src/app.js','text/javascript'],['/src/domain.js','text/javascript'],['/src/storage.js','text/javascript']]){ for(const method of ['GET','HEAD']){ const r=await probe(path,method); assert.equal(r.status,200,path); headers(r); assert.equal(r.headers['content-type'],type+'; charset=utf-8'); if(method==='HEAD') assert.equal(r.body,''); else assert.ok(r.body.length>0); } } for(const [path,method,host,status] of [['/','POST','127.0.0.1:4173',405],['/','GET','localhost:4173',400],['/','HEAD','attacker.invalid:4173',400],['/missing','HEAD','127.0.0.1:4173',404]]){ const r=await probe(path,method,host); assert.equal(r.status,status); headers(r); if(status===405) assert.equal(r.headers.allow,'GET, HEAD'); if(method==='HEAD') assert.equal(r.body,''); } for(const path of ['/package.json','/.git/config','/.env','/.specify/memory/constitution.md','/specs/','/../package.json','/'+p+'2e'+p+'2e/package.json','/index.html?x=1','/src/../index.html','/'+p+'69ndex.html','http://127.0.0.1:4173/index.html']){ const r=await probe(path); assert.equal(r.status,404,path); headers(r); } console.log('PASS: routes, raw-target/Host/method denials, HEAD, MIME and headers');"
+```
+
 **Gate:** PASS/exit zero; inspect error bodies for no file paths, stacks or file contents. Unit server tests must additionally cover missing/repeated Host and parser rejection. The probe's well-formed requests reach the application handler, whose errors need security headers; malformed requests rejected by Node's parser need rejection/no disclosure, not those headers. **Failure:** repair the contract/tests and rerun, never relax the allowlist. **Next:** browser evidence.
 
 ### Normal use and keyboard evidence
@@ -205,7 +229,7 @@ In **`specs/001-booknook/tasks.md`**, mark **T05** complete only after the test,
 
 Review `.manual`, `.specify`, and `specs` contents before staging, including hidden files. Keep shared command guidance, templates, scripts, memory, default workflow definitions, and configuration/init/integration metadata and manifests trackable. A data-only guidance or workflow file is not executed merely because it is tracked. Preserve the managed `.specify/.gitignore`, which excludes the machine-local feature pointer.
 
-**Terminal B - inspect before staging, PowerShell 7 or Bash**
+**Terminal B - all shells: inspect before staging**
 ```text
 git check-ignore .specify/feature.json
 git status --short --untracked-files=all
@@ -213,7 +237,7 @@ git status --short --ignored
 ```
 **Gate:** `git check-ignore` prints `.specify/feature.json`, and it is not already tracked. If not, stop and inspect the managed ignore file and index before staging. Review unexpected files individually; do not force-add the pointer or hide unexplained files with broad new ignore patterns.
 
-**Terminal B - stage the reviewed baseline, PowerShell 7 or Bash**
+**Terminal B - all shells: stage the reviewed baseline**
 ```text
 git add -- .gitignore .manual .specify specs package.json server.mjs index.html styles.css src/domain.js src/storage.js src/app.js tests/domain.test.js tests/storage.test.js tests/server.test.js
 git ls-files --cached
@@ -423,7 +447,7 @@ Repeat checkpoint 5's keyboard, limits, direct/persisted inert-text, corruption 
 
 Budget: evidence 8, demonstration/review 7, shutdown/reflection 5.
 
-**Terminal B - while A still serves**
+**Terminal B - all shells, while A still serves**
 ```text
 npm test
 npm run check

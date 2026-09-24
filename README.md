@@ -17,6 +17,7 @@ documentation can describe newer behavior.
 
 | Document | Use it for |
 | --- | --- |
+| [Shared CLI installation and PATH setup](./docs/00-tool-setup.md) | Choose uv or isolated pip, install uv with pip if needed, and configure executable paths for all three shells. |
 | [Copilot student prerequisites and quick reference](./docs/02-spec-kit-breakdown.md) | Complete before the Copilot track: tools, agent access, safe permissions, pinned installation, and a readiness check. |
 | [What is spec-driven development?](./docs/01-what-is-spec-driven-development.md) | Understand the method, its limits, and the architect's review responsibilities. |
 | [Copilot hands-on lab](./docs/03-walkthrough-and-lab.md) | Follow **390 minutes (6.5 hours)** of guided exercises in VS Code, excluding prework and breaks. |
@@ -27,10 +28,31 @@ documentation can describe newer behavior.
 Choose **one track** and complete its prerequisites before attending. GitHub
 Copilot is required for the original VS Code instructions, **not for noGHCP**.
 The noGHCP route requires Git, a current patched Python **3.12** (CLI minimum:
-3.11), approved **uv**, **Specify 1.0.1**, patched **Node 24 LTS**, a browser,
+3.11), approved **uv or pip**, **Specify 1.0.1**, patched **Node 24 LTS**, a browser,
 and any text editor. It can be completed offline after preparing the tools and materials.
 Keep your chosen lab open alongside your editor.
 Read the brownfield guide when applying SDD to an existing codebase.
+
+## Command-line shell options
+
+Both tracks include **PowerShell 7**, **Bash**, and **Windows Command Prompt
+(`cmd.exe`)** instructions. Choose one shell variant for each step; do not run
+all variants. Terminal blocks labeled **all shells** use the same commands in
+all three. Agent-chat commands, browser-console snippets, and file content are
+not terminal commands.
+
+| Shell | Spec Kit initialization | Running generated helpers |
+| --- | --- | --- |
+| PowerShell 7 on Windows | `--script ps` | Invoke the reviewed `.ps1` helper in PowerShell. |
+| Bash on macOS/Linux | `--script sh` | Invoke the reviewed `.sh` helper with `bash`. |
+| Command Prompt on Windows | `--script ps` | Invoke the reviewed PowerShell helper with `pwsh -NoProfile -File`; guarded multi-step examples use `pwsh -NoProfile -Command`. |
+
+Command Prompt users still need **PowerShell 7 (`pwsh`)** installed: Spec Kit
+1.0.1 supplies PowerShell/Bash helpers, not a native `--script cmd` option.
+The `cmd` blocks are for an **interactive Command Prompt**, not a batch file.
+In continued commands, `^` must be the last character on its line, with no
+trailing spaces; copy the entire block. Keep Windows and WSL tools/paths
+separate, and never bypass execution policy or run as administrator.
 
 ## What you will build and learn
 
@@ -68,6 +90,7 @@ baseline; status/filter and search remain student exercises. Work in a
 To check the supplied starter from the repository root, without installing
 packages:
 
+**Terminal - all shells**
 ```text
 npm --prefix docs/noGHCP/starter test
 npm --prefix docs/noGHCP/starter run check
@@ -80,14 +103,33 @@ Both tracks use the pinned official CLI. For **noGHCP**, follow its
 [generic initialization](./docs/noGHCP/02-hands-on-lab.md#checkpoint-1) instead of
 the Copilot integration and agent-chat steps below. Its initializer is
 `specify init booknook-manual --integration generic --integration-options="--commands-dir .manual/commands" --script ps`
-(use `--script sh` for Bash), in a new scratch location. Follow the full lab's
-guards and manual Git initialization; do not initialize twice or add extensions.
+(PowerShell 7 or Command Prompt; use `--script sh` for Bash), in a new scratch
+location. Follow the full lab's guards and manual Git initialization; do not
+initialize twice or add extensions.
 
-Install the verified 1.0.1 source using `uv`, after completing the prerequisites.
-This source-commit pin avoids relying on a release tag remaining unchanged:
+Install the verified 1.0.1 source using **one** of the following alternatives,
+after completing the prerequisites and
+[installer preparation](./docs/00-tool-setup.md). The pip route uses a dedicated
+tool environment, not system Python, and does not require uv. If only uv's
+normal installer is unavailable, the guide also shows
+[installing uv with pip](./docs/00-tool-setup.md#install-uv-with-pip-when-needed).
+The source-commit pin avoids relying on a release tag remaining unchanged:
 
+**Terminal - all shells, uv route**
 ```text
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the prepared tool environment**
+```text
+python -m pip install "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+Apply your route's [PATH commands](./docs/00-tool-setup.md#add-executable-directories-to-path)
+so `specify` resolves in each terminal, then verify:
+
+**Terminal - all shells**
+```text
 specify version
 ```
 

@@ -154,7 +154,7 @@ Vibe coding is excellent for exploration and momentum. SDD is what you reach for
 
 ## Next Steps / Further Reading
 
-SDD is a methodology, not a product, and does not require AI. This repository offers **GitHub Copilot in VS Code using Spec Kit skills** and a separate **[noGHCP CLI-and-manual route](./noGHCP/README.md)**. In noGHCP, the official pinned Specify CLI and helpers seed local scaffolding; humans write and review the artifacts, then implement extensions to a supplied local baseline. Python, uv, and Specify are required, but no AI tool or agent account is needed.
+SDD is a methodology, not a product, and does not require AI. This repository offers **GitHub Copilot in VS Code using Spec Kit skills** and a separate **[noGHCP CLI-and-manual route](./noGHCP/README.md)**. In noGHCP, the official pinned Specify CLI and helpers seed local scaffolding; humans write and review the artifacts, then implement extensions to a supplied local baseline. Python and Specify are required, with **uv or isolated pip** as the installer; no AI tool or agent account is needed. The [shared setup guide](./00-tool-setup.md) covers both installers and PATH configuration.
 
 Spec Kit's slash commands are agent Markdown instructions, not native terminal commands. The no-AI route provides [manual equivalents for those phases](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents), not a custom runner or automatic semantic analysis. Generated guidance and workflow definitions are not executed in that route.
 

@@ -5,7 +5,8 @@
 
 You are the author, implementer, and reviewer. The official Spec Kit 1.0.1 CLI
 and local helpers scaffold files; no AI tool generates their substantive content
-or implements code. Complete the updated Python/uv/CLI [prework](./01-prerequisites.md).
+or implements code. Complete the Python, uv-or-pip, and CLI
+[prework](./01-prerequisites.md).
 
 **Slash-command labels are not terminal commands.** The generic integration
 writes `.manual/commands/speckit.<phase>.md` guidance. A normal agent interprets
@@ -32,10 +33,18 @@ Total: **390 minutes**, excluding prework/breaks. This document covers the first
 
 ## How to follow the instructions
 
-- **Terminal** means an ordinary PowerShell 7 or Bash shell in your scratch
-  project. **File content** means edit the named file with your text editor.
+- **Terminal** means PowerShell 7, Bash, or Windows Command Prompt (`cmd.exe`)
+  in your scratch project. **All shells** marks commands that are identical in
+  all three. **File content** means edit the named file with your text editor.
+- Command Prompt uses `--script ps` and launches the reviewed Windows helpers
+  and guarded setup through **PowerShell 7 (`pwsh`)**; it must still be installed.
+  Follow the [shell conventions](../../README.md#command-line-shell-options):
+  `cmd` blocks are for an interactive prompt, and continuation carets (`^`)
+  must have no trailing spaces. Run only one shell variant for each step.
 - **Terminal A** runs ordinary commands and later the foreground server.
   **Terminal B** is a second shell in the same folder when A is serving.
+  Apply the [PATH setup](../00-tool-setup.md#add-executable-directories-to-path)
+  in both terminals, or restart the terminal application after persistent changes.
 - Write your own decisions into the provided templates. Replace every
   `[YOUR ...]` field; do not mark evidence passed before observing it.
 - A partner may review your work. Solo students use the same concrete
@@ -56,7 +65,7 @@ the starter's known application files without replacing the scaffolding.
 Use only your shell's block; never use `--here --force` to repurpose an existing
 project. Keep the new project outside the teaching repository.
 
-**Terminal - both shells**
+**Terminal - all shells**
 ```text
 specify --version
 specify check
@@ -134,6 +143,34 @@ destination="$HOME/speckit-labs/booknook-manual"
 ) && cd "$destination"
 ```
 
+The Command Prompt variant runs the same guards and copy operations in a
+PowerShell 7 child process, then changes the **Command Prompt's** directory only
+if that process succeeds. No policy bypass or extra script file is needed.
+
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh -NoProfile -Command ^
+  "$ErrorActionPreference = 'Stop';" ^
+  "foreach ($name in @('SPECIFY_INIT_DIR', 'SPECIFY_FEATURE', 'SPECIFY_FEATURE_DIRECTORY')) { if ([Environment]::GetEnvironmentVariable($name)) { throw ('Remove the stale ' + $name + ' override in this shell first.') } };" ^
+  "$source = Read-Host 'Absolute path to the supplied docs\noGHCP\starter folder';" ^
+  "$source = (Resolve-Path -LiteralPath $source).Path;" ^
+  "$entries = @('.gitignore', 'package.json', 'server.mjs', 'index.html', 'styles.css', 'src', 'tests');" ^
+  "foreach ($entry in $entries) { if (-not (Test-Path -LiteralPath (Join-Path $source $entry))) { throw ('Incomplete starter: ' + $entry + ' is missing.') } };" ^
+  "$parent = Join-Path $env:USERPROFILE 'speckit-labs';" ^
+  "New-Item -ItemType Directory -Path $parent -Force | Out-Null;" ^
+  "$destination = Join-Path $parent 'booknook-manual';" ^
+  "if (Test-Path -LiteralPath $destination) { throw 'Choose a new scratch destination; preserve existing work.' };" ^
+  "Set-Location $parent;" ^
+  "specify init booknook-manual --integration generic --integration-options='--commands-dir .manual/commands' --script ps;" ^
+  "if ($LASTEXITCODE -ne 0) { throw 'Initialization failed; inspect output and preserve partial work.' };" ^
+  "foreach ($entry in $entries) { if (Test-Path -LiteralPath (Join-Path $destination $entry)) { throw ('Unexpected existing ' + $entry + '; do not overwrite it.') } };" ^
+  "foreach ($entry in $entries) { Copy-Item -LiteralPath (Join-Path $source $entry) -Destination $destination -Recurse };" ^
+  "Set-Location $destination;" ^
+  "git init;" ^
+  "if ($LASTEXITCODE -ne 0) { throw 'Git initialization failed; stop and inspect the scratch project.' };" ^
+  "Get-Location" && cd /d "%USERPROFILE%\speckit-labs\booknook-manual"
+```
+
 **Gate:** the printed location is your new scratch folder, not the teaching
 repository. If copying failed, inspect the error and preserve partial work;
 do not continue in the old directory or delete an unrelated folder.
@@ -147,7 +184,7 @@ Inspect `.manual/commands/` (ten guidance files), `.specify/templates/`,
 `.specify/feature.json` pointer while keeping shareable templates/scripts tracked.
 The generated `.specify/workflows/` content is not executed in this track.
 
-**Terminal - confirm the selected integration**
+**Terminal - all shells: confirm the selected integration**
 ```text
 specify integration status
 ```
@@ -160,7 +197,7 @@ Open the scratch folder in your editor with AI features disabled. Inspect
 `package.json`: three scripts, no dependencies or install hooks. Inspect the
 supplied server/storage code before executing it.
 
-**Terminal - scratch root**
+**Terminal - all shells, scratch root**
 ```text
 node --version
 npm test
@@ -262,6 +299,19 @@ Get-Content '.\.specify\feature.json'
 )
 ```
 
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh -NoProfile -Command ^
+  "$ErrorActionPreference = 'Stop';" ^
+  "if (Test-Path '.\specs') { throw 'Stop: this first-run step requires a fresh specs directory.' };" ^
+  "$expected = Join-Path (Get-Location).Path 'specs\001-booknook\spec.md';" ^
+  "$preview = & '.\.specify\scripts\powershell\create-new-feature.ps1' -Json -DryRun -Number 1 -ShortName booknook 'BookNook manual feature' | ConvertFrom-Json;" ^
+  "if (-not $preview -or $preview.BRANCH_NAME -ne '001-booknook' -or [IO.Path]::GetFullPath($preview.SPEC_FILE) -ne $expected) { throw 'Unexpected feature target; inspect the project and environment before writing.' };" ^
+  "$feature = & '.\.specify\scripts\powershell\create-new-feature.ps1' -Json -Number 1 -ShortName booknook 'BookNook manual feature' | ConvertFrom-Json;" ^
+  "if (-not $feature -or $feature.BRANCH_NAME -ne '001-booknook' -or [IO.Path]::GetFullPath($feature.SPEC_FILE) -ne $expected) { throw 'Unexpected created feature; do not continue with a hard-coded path.' };" ^
+  "$feature; Get-Content '.\.specify\feature.json'"
+```
+
 **Expected:** JSON `BRANCH_NAME: "001-booknook"`, `FEATURE_NUM: "001"`, and
 `SPEC_FILE` inside this project's `specs/001-booknook`. `BRANCH_NAME` is legacy
 helper terminology here, **not proof of a Git branch**. The helper copies the
@@ -348,6 +398,11 @@ existing one; it does not infer architecture or regenerate your decisions.
 bash .specify/scripts/bash/setup-plan.sh --json
 ```
 
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh -NoProfile -File ".\.specify\scripts\powershell\setup-plan.ps1" -Json
+```
+
 **Expected:** `FEATURE_SPEC`, `IMPL_PLAN`, `SPECS_DIR`, and `BRANCH` refer to
 the selected `001-booknook` feature. Verify them before editing. If they point
 elsewhere, stop and inspect the pointer and environment; changing Git branches
@@ -413,7 +468,7 @@ $expectedFeature = Join-Path $PWD 'specs\001-booknook'
 if (-not $taskInfo -or [IO.Path]::GetFullPath($taskInfo.FEATURE_DIR) -ne $expectedFeature) {
   throw 'Task setup did not select the expected feature; stop before copying.'
 }
-$taskInfo | Select-Object FEATURE_DIR, TASKS_TEMPLATE
+$taskInfo | Format-List FEATURE_DIR, TASKS_TEMPLATE
 [IO.File]::Copy($taskInfo.TASKS_TEMPLATE, (Join-Path $expectedFeature 'tasks.md'), $false)
 ```
 
@@ -424,6 +479,17 @@ $taskInfo | Select-Object FEATURE_DIR, TASKS_TEMPLATE
   task_info=$(bash .specify/scripts/bash/setup-tasks.sh --json)
   python3 -X utf8 -c 'import json,sys; from pathlib import Path; d=json.loads(sys.argv[1]); feature=Path("specs/001-booknook").resolve(); assert Path(d["FEATURE_DIR"]).resolve()==feature; print(json.dumps({k:d[k] for k in ("FEATURE_DIR","TASKS_TEMPLATE")})); data=Path(d["TASKS_TEMPLATE"]).read_text(encoding="utf-8"); output=(feature/"tasks.md").open("x", encoding="utf-8"); output.write(data); output.close()' "$task_info"
 )
+```
+
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh -NoProfile -Command ^
+  "$ErrorActionPreference = 'Stop';" ^
+  "$taskInfo = & '.\.specify\scripts\powershell\setup-tasks.ps1' -Json | ConvertFrom-Json;" ^
+  "$expectedFeature = Join-Path $PWD 'specs\001-booknook';" ^
+  "if (-not $taskInfo -or [IO.Path]::GetFullPath($taskInfo.FEATURE_DIR) -ne $expectedFeature) { throw 'Task setup did not select the expected feature; stop before copying.' };" ^
+  "$taskInfo | Format-List FEATURE_DIR, TASKS_TEMPLATE;" ^
+  "[IO.File]::Copy($taskInfo.TASKS_TEMPLATE, (Join-Path $expectedFeature 'tasks.md'), $false)"
 ```
 
 **Expected:** helper JSON includes `FEATURE_DIR`, `AVAILABLE_DOCS`,
@@ -497,6 +563,11 @@ For the **structural part** of the `/speckit.analyze` phase, run:
 bash .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh -NoProfile -File ".\.specify\scripts\powershell\check-prerequisites.ps1" -Json -RequireTasks -IncludeTasks
+```
+
 **Expected:** the selected `FEATURE_DIR` and `AVAILABLE_DOCS`, including
 `tasks.md`. Missing files fail the helper. Placeholder text and contradictory
 requirements can still pass it: this is **not** the semantic `/speckit.analyze`
@@ -565,7 +636,7 @@ test('FR-004: manual status filtering preserves order and validates options', as
 });
 ```
 
-**Terminal**
+**Terminal - all shells**
 ```text
 node --test tests/domain.test.js
 ```
@@ -653,7 +724,7 @@ them: a candidate state is saved **before** the displayed state and success
 message change. A failed save retains the old data and user input. Enabling
 the flag is not permission to rewrite storage or expose the server.
 
-**Terminal**
+**Terminal - all shells**
 ```text
 npm test
 npm run check

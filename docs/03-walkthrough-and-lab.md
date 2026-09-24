@@ -5,7 +5,7 @@ Use **Spec Kit v1.0.1 / VS Code Copilot skills**; complete [prework](./02-spec-k
 
 **Without AI tools?** Follow the separate
 [noGHCP CLI-and-manual series](./noGHCP/README.md), using the official pinned
-Specify CLI with Python/uv, generic scaffolding, human-written artifacts, and
+Specify CLI with Python and uv or pip, generic scaffolding, human-written artifacts, and
 local coding exercises. No AI tool or agent account is required there. Slash
 commands are agent instructions, not executable terminal commands; that series
 provides [manual phase equivalents](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents).
@@ -39,8 +39,12 @@ Prework and breaks are additional. Never skip review to catch up.
 - **File content** means paste into the named file using the editor.
 - **Browser console** means the disposable profile at the exact lab origin.
   Read snippets first; never bypass browser paste-safety protections.
-- Use PowerShell **7**, not 5.1. Bash alternatives cover shell-specific operations;
-  `node`, `npm`, `git`, and `specify` are otherwise identical. No policy changes/admin rights.
+- Use PowerShell **7** (not 5.1), Bash, or Windows Command Prompt (`cmd.exe`).
+  **All shells** marks shared terminal commands; choose only one variant for
+  shell-specific steps. Command Prompt still needs `pwsh` (PowerShell 7) for
+  Spec Kit's Windows helpers; it uses `--script ps`, not `--script cmd`.
+  Follow the [shell conventions](../README.md#command-line-shell-options).
+  No policy changes/admin rights.
 - Keep the teaching repository unchanged: all generated work belongs in a
   **new scratch project outside this repository**.
 - Review scripts, commands, permissions, and diffs before approval. No terminal
@@ -59,14 +63,17 @@ not one controlled by an agent.
 
 ### Verify before initializing
 
-Prework must provide Git, Python 3.11+, uv, latest patched Node **24** LTS with npm,
-PowerShell 7 on Windows, VS Code, and approved Copilot access. Check locally:
+Prework must provide Git, Python 3.11+, Specify installed with **uv or pip**,
+latest patched Node **24** LTS with npm, PowerShell 7 on Windows, VS Code, and
+approved Copilot access. Apply the
+[PATH setup](./00-tool-setup.md#add-executable-directories-to-path) in every
+terminal, including Terminal B, or restart the editor after persistent PATH
+changes. Check locally:
 
 **Terminal  -  PowerShell 7**
 ```powershell
 $PSVersionTable.PSVersion
 python --version
-uv --version
 git --version
 node --version
 npm --version
@@ -77,13 +84,27 @@ specify check
 **Terminal  -  Bash**
 ```bash
 python3 --version
-uv --version
 git --version
 node --version
 npm --version
 specify --version
 specify check
 ```
+
+**Terminal  -  Windows Command Prompt (`cmd.exe`)**
+```cmd
+pwsh --version
+python --version
+git --version
+node --version
+npm --version
+specify --version
+specify check
+```
+
+For the **uv route only**, also run `uv --version`. For the **pip route**,
+verify `python -m pip --version` in the prepared tool environment instead;
+missing uv is not a failure for that route.
 
 **Checkpoint:** Node prints `v24.x.x`; CLI prints `specify 1.0.1`. Record versions.
 `specify check` reports tools, not Copilot entitlement/editor skill discovery.
@@ -93,10 +114,20 @@ Unused integrations need not be installed. Do not initialize with a different re
 Git source, not a similarly named registry package. Install only as approved prework;
 reopen the terminal and recheck versions. Do not force-replace an existing installation.
 
-**Terminal  -  either shell; prework recovery only**
+**Terminal  -  all shells; uv route, prework recovery only**
 ```text
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
 ```
+
+**Terminal  -  all shells; pip alternative in the prepared tool environment**
+```text
+python -m pip install "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+Choose one installer. If installation succeeded but `specify` is not found,
+repair PATH using the shared guide rather than installing another copy.
+If uv's normal installer is unavailable, see
+[installing uv with pip](./00-tool-setup.md#install-uv-with-pip-when-needed).
 
 ### Create a separate project
 
@@ -127,6 +158,18 @@ else
   specify init booknook --integration copilot --script sh &&
     cd booknook && git init && pwd && ls .github/skills
 fi
+```
+
+**Terminal  -  Windows Command Prompt (`cmd.exe`)**
+```cmd
+if exist "%USERPROFILE%\speckit-labs\booknook" (
+  echo Stop: existing booknook. Choose another scratch parent.
+) else (
+  if not exist "%USERPROFILE%\speckit-labs" mkdir "%USERPROFILE%\speckit-labs"
+  cd /d "%USERPROFILE%\speckit-labs" && ^
+    specify init booknook --integration copilot --script ps && ^
+    cd booknook && git init && cd && dir /b ".github\skills"
+)
 ```
 
 **Checkpoint:** scratch `booknook` contains `.specify` and
@@ -342,6 +385,8 @@ Server tests use ephemeral loopback ports, explicit accepted Host, closed resour
 test headers, allowed files and denial paths. Gates: A scaffolds/exports, B tested
 domain/storage, C tested server/UI. Missing modules are not valid red.
 Generate plan, research, data model, module contracts and quickstart evidence steps.
+Include PowerShell 7, Bash, and Windows Command Prompt terminal alternatives in
+quickstart; label identical commands for all shells and use pwsh for Windows helpers.
 No OpenAPI. Explain residual risks and security/reliability/operations/performance/cost.
 ```
 
@@ -508,7 +553,7 @@ test('FR-003/004: toggle and filter do not mutate earlier state', () => {
 });
 ```
 
-**Terminal  -  either shell, scratch root**
+**Terminal  -  all shells, scratch root**
 ```text
 npm run check
 node --test tests/domain.test.js
@@ -569,7 +614,7 @@ test('FR-006: JSON escaping cannot produce an unreadable successful save', () =>
 });
 ```
 
-**Terminal  -  either shell**
+**Terminal  -  all shells**
 ```text
 node --test tests/storage.test.js
 ```
@@ -595,7 +640,7 @@ Run targeted domain/storage tests and syntax checks after command approval.
 Update only verified slice B task statuses and evidence, then STOP for review.
 ```
 
-**Terminal  -  either shell, after reviewing the change**
+**Terminal  -  all shells, after reviewing the change**
 ```text
 node --test tests/domain.test.js tests/storage.test.js
 npm run check
@@ -635,7 +680,7 @@ No commits/pushes. STOP at gate.
 After inspecting red tests, approve in ordinary chat: "The reviewed server tests are
 approved; finish only slice C as previously scoped." No weaker tests/future work.
 
-**Terminal  -  either shell, after code review**
+**Terminal  -  all shells, after code review**
 ```text
 npm test
 npm run check
@@ -657,7 +702,7 @@ checks, 5 review. Keep failures linked to FRs; repair the smallest affected slic
 
 ### Start and probe the actual server
 
-**Terminal A  -  either shell, scratch root; leave it open**
+**Terminal A  -  all shells, scratch root; leave it open**
 ```text
 npm start
 ```
@@ -672,6 +717,11 @@ if ($listeners.Count -ne 1 -or $listeners[0].LocalAddress -ne '127.0.0.1') {
   throw 'Expected exactly one listener at 127.0.0.1:4173; stop and review binding.'
 }
 $listeners | Select-Object LocalAddress, LocalPort, OwningProcess
+```
+
+**Terminal B  -  Windows Command Prompt (`cmd.exe`)**
+```cmd
+netstat -ano | findstr /R /C:":4173 .*LISTENING"
 ```
 
 **Terminal B  -  Linux Bash**
@@ -689,8 +739,12 @@ or any other address fails the gate even if the page loads. Record the observed
 address and correlate it with your started Node process. If the inspection tool
 is unavailable, use an approved OS equivalent with the facilitator; do not
 elevate privileges or count an HTTP response as proof of loopback-only binding.
+In Command Prompt, inspect the **Local Address** and **PID** columns, not the
+foreign address; no matching row is a failure, not a pass. The command includes
+IPv4 and IPv6 listeners so an additional wildcard listener cannot be overlooked.
 
 This portable Node HTTP probe tests Host/raw paths without browser normalization.
+Run only your shell's variant.
 
 **Terminal B  -  PowerShell 7 or Bash, scratch root**
 ```text
@@ -718,6 +772,15 @@ for(const args of [['/','POST'],['/','GET','localhost:4173'],['/','GET','attacke
 }
 console.log('PASS: allowlist, denied requests, HEAD and security headers');
 "
+```
+
+Command Prompt cannot use the multiline quoted argument above. Run this
+equivalent **single-line** command; it constructs percent signs in JavaScript
+so the shell cannot expand encoded paths as environment variables.
+
+**Terminal B  -  Windows Command Prompt (`cmd.exe`), scratch root**
+```cmd
+node --input-type=module -e "import assert from 'node:assert/strict'; import { request } from 'node:http'; const probe=(path,method='GET',host='127.0.0.1:4173')=>new Promise((resolve,reject)=>{ const req=request({hostname:'127.0.0.1',port:4173,path,method,headers:{Host:host}},res=>{ let body=''; res.setEncoding('utf8'); res.on('data',part=>body+=part); res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body})); }); req.on('error',reject); req.setTimeout(3000,()=>req.destroy(new Error('probe timeout'))); req.end(); }); const q=String.fromCharCode(39),p=String.fromCharCode(37); const expected=['default-src '+q+'none'+q,'script-src '+q+'self'+q,'style-src '+q+'self'+q,'connect-src '+q+'none'+q,'base-uri '+q+'none'+q,'form-action '+q+'none'+q,'frame-ancestors '+q+'none'+q].sort(); for(const path of ['/','/index.html','/styles.css','/src/app.js','/src/domain.js','/src/storage.js']){ const r=await probe(path); assert.equal(r.status,200,path); assert.deepEqual(r.headers['content-security-policy'].split(';').map(x=>x.trim()).filter(Boolean).sort(),expected); assert.equal(r.headers['x-content-type-options'],'nosniff'); assert.equal(r.headers['referrer-policy'],'no-referrer'); } const head=await probe('/','HEAD'); assert.equal(head.status,200); assert.equal(head.body,''); for(const args of [['/','POST'],['/','GET','localhost:4173'],['/','GET','attacker.invalid:4173'],['/package.json'],['/.git/config'],['/specs/'],['/../package.json'],['/'+p+'2e'+p+'2e/package.json'],['/index.html?x=1'],['/src/../index.html']]){ const r=await probe(...args); assert.ok(r.status>=400 && r.status<500,JSON.stringify(args)); } console.log('PASS: allowlist, denied requests, HEAD and security headers');"
 ```
 
 **Expected:** PASS and exit zero. Refusal is startup failure, not security success.
@@ -872,7 +935,7 @@ below. Inspect their contents for secrets first; do not use `git add .`.
 This snapshots them in the local Git index without making a commit or publishing
 anything. It lets the next module's `git diff` show what CR-001 actually changes.
 
-**Terminal  -  either shell, scratch root only**
+**Terminal  -  all shells, scratch root only**
 ```text
 git add -- .gitignore .specify .github specs package.json server.mjs index.html styles.css src tests
 git --no-pager diff --cached --stat
@@ -942,7 +1005,7 @@ test('FR-011: search combines title OR author with status AND', () => {
 });
 ```
 
-**Terminal  -  either shell, scratch root**
+**Terminal  -  all shells, scratch root**
 ```text
 node --test tests/domain.test.js
 ```
@@ -979,7 +1042,7 @@ reset the repository, or imply the budget guarantees completion.
 
 **Budget:** 8 evidence review, 7 peer handoff, 5 shutdown and reflection.
 
-**Terminal  -  either shell, scratch root**
+**Terminal  -  all shells, scratch root**
 ```text
 npm test
 npm run check

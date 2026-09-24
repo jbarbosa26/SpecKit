@@ -16,20 +16,24 @@ manual equivalents for those phases, not a custom or hidden AI runtime.
 | Basic skills | Navigate folders, edit text, run terminal commands, and read basic JavaScript. The lab supplies templates and guided exercises. |
 | Git | Install an approved current [Git release](https://git-scm.com/downloads). No GitHub account, remote repository, or publishing is required. |
 | Python | Use a current patched [Python 3.12.x](https://www.python.org/downloads/) for this lab. Spec Kit's minimum is 3.11; Python 3.12 is the workshop baseline. |
-| uv | Install an approved current [uv release](https://docs.astral.sh/uv/getting-started/installation/) using your organization's package manager or a reviewed binary. |
+| CLI installer | Use approved [uv](https://docs.astral.sh/uv/getting-started/installation/) or pip in a dedicated Python 3.12 tool environment. The [shared setup guide](../00-tool-setup.md) also shows how to install uv with pip if its usual installer is unavailable. |
 | Specify CLI | Install **Spec Kit 1.0.1** from the pinned official source using the commands below. |
 | Node.js | Install the latest patched [Node.js 24 LTS](https://nodejs.org/en/download/); npm comes with it. Do not use end-of-life Node 20. |
 | Editor | Any plain text/code editor. No extensions are required; leave AI assistance disabled for these exercises. |
-| Shell | Windows: [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows). macOS/Linux: Bash. Use one environment consistently; do not mix Windows and WSL paths/tools. |
+| Shell | Windows: [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) or Command Prompt (`cmd.exe`), with PowerShell 7 installed for the helpers and guarded setup. macOS/Linux: Bash. Use one environment consistently; do not mix Windows and WSL paths/tools. |
 | Browser | A current browser with DevTools and a disposable local profile, without account sign-in/sync. Use one app tab and fictional data. |
-| Listener inspection | `Get-NetTCPConnection` on Windows, `ss` on Linux, or `lsof` on macOS, without elevation. |
+| Listener inspection | `Get-NetTCPConnection` in Windows PowerShell, `netstat` and `findstr` in Windows Command Prompt, `ss` on Linux, or `lsof` on macOS, without elevation. |
 
 You do **not** need Copilot, Claude Code, another AI tool, API credentials,
-an Azure subscription, or paid agent access. Python and uv run/install the
-toolkit; Node runs the application and tests. They do not execute agent prompts.
+an Azure subscription, or paid agent access. Python runs the toolkit; uv or pip
+installs it. Node runs the application and tests. They do not execute agent prompts.
 Follow your organization's approved installation/proxy/certificate process.
 Do not pipe downloaded scripts directly into a shell, bypass execution policy
 or TLS checks, or run the workshop as administrator.
+
+Use the [shell conventions](../../README.md#command-line-shell-options).
+Command Prompt selects `--script ps` and runs the reviewed PowerShell helpers
+with `pwsh`; Spec Kit 1.0.1 does not supply a `--script cmd` variant.
 
 ## Obtain the materials
 
@@ -64,23 +68,64 @@ missing status/filter and search behavior through your own edits.
 
 ## Install and verify the official CLI
 
-Open an ordinary terminal. These commands only print installed versions:
+Open an ordinary terminal. These commands only print installed versions.
 
+**Terminal - all shells (PowerShell 7, Bash, or Command Prompt)**
 ```text
 git --version
-uv --version
 node --version
 npm --version
 ```
 
-On Windows run `python --version` and `$PSVersionTable.PSVersion`; on macOS/Linux
-run `python3 --version`. Require the approved Python 3.12 patch and Node `v24.x.x`
-(plus PowerShell 7 on Windows). Resolve missing tools before class without
-changing execution policy or disabling TLS.
+Then run your shell's additional version checks:
 
-**Terminal - PowerShell 7 or Bash**
+**Terminal - Windows PowerShell 7**
+```powershell
+python --version
+$PSVersionTable.PSVersion
+```
+
+**Terminal - macOS/Linux Bash**
+```bash
+python3 --version
+```
+
+**Terminal - Windows Command Prompt (`cmd.exe`)**
+```cmd
+python --version
+pwsh --version
+```
+
+Require the approved Python 3.12 patch and Node `v24.x.x` (plus PowerShell 7
+on Windows, even when using Command Prompt). Resolve missing tools before
+class without changing execution policy or disabling TLS.
+
+Choose an installer with the [shared setup guide](../00-tool-setup.md).
+The uv route needs `uv --version` to work; use
+[pip to install uv](../00-tool-setup.md#install-uv-with-pip-when-needed) if that
+approved method is available instead of the normal installer. The pip-only
+route needs the guide's dedicated **Python 3.12** environment and its pip,
+but does not need uv. Do not install into system Python or an application's
+environment.
+
+Run **one** installation alternative:
+
+**Terminal - all shells, uv route**
 ```text
 uv tool install --python 3.12 specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the prepared Python 3.12 environment**
+```text
+python -c "import sys; sys.exit(0 if sys.version_info[:2] == (3, 12) else 'Use the Python 3.12 workshop environment')" && python -m pip install "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+After successful installation, apply the route's
+[PATH commands](../00-tool-setup.md#add-executable-directories-to-path) and
+verify the selected executable:
+
+**Terminal - all shells**
+```text
 specify --version
 specify init --help
 specify check
@@ -91,16 +136,34 @@ specify check
 not readiness or document quality. Missing AI agents is acceptable: this track
 selects `generic`, which does not require an agent executable.
 
-If `specify` is not found after installation, run `uv tool update-shell`, open a
-new terminal, and retry. If another version is already installed, first review
-other projects' needs; then deliberately replace only the tool environment:
+If `specify` is not found, fix PATH **before reinstalling**. For uv, add the
+directory from `uv tool dir --bin`; `uv tool update-shell` can persist it.
+For pip, add the verified environment's `Scripts` or `bin` directory instead.
+The shared guide supplies commands for all three shells and persistence.
+Restart the terminal application/editor after persistent changes; each terminal
+must resolve the intended installation.
 
+If another version is actually installed in that environment, first review
+other projects' needs, then deliberately replace only the tool environment
+using **one** matching installer:
+
+**Terminal - all shells, uv reinstall**
 ```text
 uv tool install --python 3.12 --force specify-cli --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the verified Python 3.12 environment**
+```text
+python -c "import sys; sys.exit(0 if sys.version_info[:2] == (3, 12) else 'Use the Python 3.12 workshop environment')" && python -m pip install --force-reinstall "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+**Terminal - all shells, after a successful replacement**
+```text
 specify --version
 ```
 
-Here `--force` belongs to uv's installation, **not** project initialization.
+Here `--force` (uv) and `--force-reinstall` (pip) belong to tool installation,
+**not** project initialization. Do not use pip inside a uv-managed environment.
 The source pin includes Spec Kit's bundled templates; it does not lock every
 transitive Python dependency. Do not run an unpinned install or upgrade in class.
 Tool installation needs network access; finish it in advance for offline work.
@@ -115,7 +178,10 @@ agent execution a manual operation.
 
 ## Ready to begin
 
-- [ ] Git, Python 3.12, uv, patched Node 24, npm, and the chosen shell work.
+- [ ] Git, Python 3.12, patched Node 24, npm, and the chosen shell work.
+- [ ] The selected installer works: uv, or pip in the verified Python 3.12 tool environment.
+- [ ] PATH resolves the intended `specify` in each workshop terminal.
+- [ ] On Windows, `pwsh --version` reports PowerShell 7, including for Command Prompt users.
 - [ ] `specify --version` reports `1.0.1`, with the expected init options.
 - [ ] The documents and complete starter are available locally.
 - [ ] You can edit ordinary files and inspect browser DevTools.

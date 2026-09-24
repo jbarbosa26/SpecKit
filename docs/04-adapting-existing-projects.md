@@ -6,7 +6,7 @@ This guide targets **GitHub Spec Kit v1.0.1**, commit `9118ed15a0ba65053469a94c5
 
 For a complete workshop without AI tools, use
 [noGHCP CLI-and-manual track](./noGHCP/README.md), which uses the official pinned
-Specify CLI, Python/uv, generic scaffolding, and manual spec-first extensions to a
+Specify CLI, Python with uv or pip, generic scaffolding, and manual spec-first extensions to a
 supplied local baseline. Slash commands are agent instructions, not native
 terminal operations; use the [manual phase equivalents](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents)
 without an AI tool or custom runner. The brownfield principles below transfer,
@@ -49,31 +49,69 @@ You don't need a perfect score. But the more "fix first" rows you have, the more
 
 ## Step 1 — Initialize safely, or use the upgrade path
 
-Prerequisites: **Python 3.11+**, **uv**, Git for the source-pinned installation and review workflow, and approved Copilot access in VS Code. The application runtime is separate from the CLI's Python requirement.
+Prerequisites: **Python 3.11+**, **uv or isolated pip**, Git for the source-pinned installation and review workflow, and approved Copilot access in VS Code. The application runtime is separate from the CLI's Python requirement.
 
-**Terminal — install the pinned CLI and inspect the environment:**
+Terminal examples cover **PowerShell 7, Bash, and Windows Command Prompt
+(`cmd.exe`)**. Shared blocks marked **all shells** need no alternate syntax.
+Command Prompt still needs PowerShell 7 (`pwsh`) for generated Windows helpers;
+see the [shell conventions](../README.md#command-line-shell-options).
 
-```powershell
+Use the [shared setup guide](./00-tool-setup.md) for the dedicated pip
+environment, installing uv with pip if needed, and shell-specific PATH
+commands. Identify the current CLI's location and other projects' requirements
+before replacing it. Use **one** matching installer below, not both.
+
+**Terminal - all shells, uv route: install the pinned CLI**
+```text
 uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884
+```
+
+**Terminal - all shells, pip alternative in the verified tool environment**
+```text
+python -m pip install --force-reinstall "specify-cli @ git+https://github.com/github/spec-kit.git@9118ed15a0ba65053469a94c560ea5d233f75884"
+```
+
+Apply the route's [PATH commands](./00-tool-setup.md#add-executable-directories-to-path),
+then inspect the environment:
+
+**Terminal - all shells**
+```text
 specify version
 specify check
 ```
 
-Here `--force` belongs to **uv's CLI installation**, not project initialization. Installing it can replace the CLI used by other projects; record their requirements first. The source commit is pinned, not the entire transitive dependency environment. `specify check` is a tool-availability check, not an application security or correctness test.
+Here `--force` (uv) and `--force-reinstall` (pip) belong to **CLI installation**, not project initialization. Installing it can replace the CLI used by other projects; record their requirements first. Do not use pip inside a uv-managed environment. The source commit is pinned, not the entire transitive dependency environment. `specify check` is a tool-availability check, not an application security or correctness test.
 
 If `.specify` or existing Spec Kit integration files are already present, stop and use [Upgrading an existing installation](#upgrading-an-existing-installation). Do not reinitialize an installed project as a shortcut.
 
 After backups and baseline review, create a dedicated review branch **yourself**, from the intended existing branch. Choose an unused branch name.
 
-```powershell
+**Terminal - all shells**
+```text
 git status --short
 git diff
 git diff --cached
 git switch -c adopt-spec-kit
+```
+
+Stop if branch creation fails. Then initialize using **one** of these variants:
+
+**Terminal - PowerShell 7**
+```powershell
 specify init --here --integration copilot --script ps
 ```
 
-For Bash, use `specify init --here --integration copilot --script sh`; do not run both. `--here` targets the current directory. In a nonempty directory, inspect the warning and confirm only after reviewing the files at risk. Do **not** add blanket `--force` to bypass the check. If unattended initialization cannot obtain confirmation, use an interactive, reviewed session instead.
+**Terminal - Bash**
+```bash
+specify init --here --integration copilot --script sh
+```
+
+**Terminal - Command Prompt (`cmd.exe`)**
+```cmd
+specify init --here --integration copilot --script ps
+```
+
+`--here` targets the current directory. In a nonempty directory, inspect the warning and confirm only after reviewing the files at risk. Do **not** add blanket `--force` to bypass the check. If unattended initialization cannot obtain confirmation, use an interactive, reviewed session instead.
 
 ### What to inspect
 
@@ -85,7 +123,8 @@ Default Copilot skills setup uses bundled release assets and creates or updates:
 
 Initialization is **not overwrite-proof**: generated integration files may be replaced. Do not assume every existing customization is merged or preserved. Immediately review:
 
-```powershell
+**Terminal - all shells**
+```text
 git status --short --untracked-files=all
 git diff --stat
 git diff
@@ -227,10 +266,10 @@ If a slice fails, retain diagnostics without sensitive data, stop further change
 **Changing the installed CLI does not regenerate a project.** Treat CLI replacement, repository integration refresh, and optional extension/preset changes as separate reviewed operations. For this workshop, remain on the pinned v1.0.1 commit.
 
 1. **Inventory and protect.** Record `specify version` and `specify integration status`, integration mode, customizations, and baseline checks. Back up tracked/untracked/ignored data and create a review branch as above. Identify whether Copilot is the active/default integration.
-2. **Install the approved CLI source.** Use the commit-pinned `uv tool install` command in Step 1, then `specify version` and `specify check`. For a future version, verify its commit and migration guidance first; do not silently follow a moving branch.
-3. **Refresh the installed Copilot integration from that CLI's bundled assets:**
+2. **Install the approved CLI source.** Use the commit-pinned uv or isolated-pip alternative in Step 1 that matches your installer, apply its PATH setup, then run `specify version` and `specify check`. For a future version, verify its commit and migration guidance first; do not silently follow a moving branch.
+3. **Refresh the installed Copilot integration from that CLI's bundled assets (all shells):**
 
-   ```powershell
+   ```text
    specify integration status
    specify integration upgrade copilot
    specify integration status

@@ -5,10 +5,13 @@ requirements, make decisions, review documents, edit code, and run checks
 yourself. No GitHub Copilot, Claude Code, other AI assistant, model, account,
 API key, or subscription is required.
 
-Install **Git, Python 3.12, uv, Spec Kit 1.0.1, Node.js 24 LTS, a browser, and
+Install **Git, Python 3.12, uv or pip, Spec Kit 1.0.1, Node.js 24 LTS, a browser, and
 any text editor**. You do not need VS Code, an Azure subscription, or a cloud
 service. After installing tools and obtaining the materials, the documented
 scaffolding, helper scripts, editing, and application exercises run locally.
+The [shared setup guide](../00-tool-setup.md) includes isolated pip alternatives,
+installing uv with pip when its usual installer is unavailable, and PATH
+commands for all three shells. uv is optional for the pip-only route.
 
 **Important limitation:** Spec Kit's `/speckit.*` slash commands are agent
 instructions, not native `specify` subcommands. Installing the CLI, Python, and
@@ -61,6 +64,13 @@ report structural prerequisites. Git records a local comparison baseline;
 Node serves static files and runs built-in tests. Humans supply the actual
 content and decisions. None of the documented steps calls an AI service.
 There are no npm dependencies or package-install steps for BookNook.
+
+Terminal instructions include **PowerShell 7, Bash, and Windows Command Prompt
+(`cmd.exe`)**. Shared commands are labeled **all shells**; choose only one
+variant where they differ. Command Prompt uses `--script ps` and launches the
+reviewed helpers and guarded setup through **PowerShell 7 (`pwsh`)**, which must
+still be installed. See the [shell conventions](../../README.md#command-line-shell-options);
+there is no native `--script cmd` or terminal slash-command runner.
 
 ## Slash-command phases and their no-AI equivalents
 

@@ -305,8 +305,10 @@ Record an intended assertion or unimplemented-stub failure, then implement and
 rerun. Missing modules/exports, syntax errors, and zero tests are setup defects,
 not legitimate red evidence. Keep the lab's starter tests and extend them.
 
-After scaffolding, these **terminal commands** work in PowerShell 7 or Bash in
-the student's scratch root (not this documentation repository):
+After scaffolding, these **terminal commands** work unchanged in **all shells:
+PowerShell 7, Bash, or Windows Command Prompt (`cmd.exe`)**, in the student's
+scratch root (not this documentation repository). Use the lab's shell-specific
+alternatives for setup and listener/HTTP checks.
 
 ```text
 npm run check

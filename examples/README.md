@@ -19,6 +19,12 @@ The commands below are **Copilot agent-session skills**, not terminal commands. 
 
 The student owns the decisions; a peer or facilitator reviews the scope, risks, contracts, and evidence. A `[P]` task marker is only a candidate for parallel work: inspect shared files and dependencies first. No command result replaces human review.
 
+The examples' `node`, `npm`, and Git terminal commands work unchanged in
+**PowerShell 7, Bash, and Windows Command Prompt (`cmd.exe`)**. For setup,
+Spec Kit helpers, and listener/HTTP checks, use your shell's alternatives in
+the relevant track's lab. Command Prompt still needs PowerShell 7 for Spec Kit
+helpers; see the [shell conventions](../README.md#command-line-shell-options).
+
 ## Base scope and later change
 
 The base feature is **Library & Reading Status**:
