@@ -120,9 +120,9 @@ The following are completion criteria to verify, not pre-recorded successes:
 - **SC-003:** Inert text, keyboard/focus/error feedback, and restricted HTTP
   behavior have actual browser/server evidence, including denial paths.
 - **SC-004:** Every FR has a reviewed test/evidence/task link; remaining limitations
-  are recorded. No measured speed, classroom duration, or certification claim is made.
+  are recorded. No completion-time or certification guarantee is made.
 
-- [ ] Student owner and peer/facilitator reviewed the base requirements and scope.
+- [ ] Reviewed the base requirements and scope; recorded self-review or peer review.
 - [ ] Evidence for SC-001–SC-004 was recorded in the student's own artifacts.
 - [ ] No unresolved blocking security, integrity, or accessibility finding is hidden.
 

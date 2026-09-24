@@ -37,8 +37,8 @@ with `pwsh`; Spec Kit 1.0.1 does not supply a `--script cmd` variant.
 
 ## Obtain the materials
 
-Obtain a trusted copy of this repository from the instructor or an approved
-checkout/download. Keep the following together:
+Obtain a trusted copy of this repository using an approved checkout or download.
+Keep the following together:
 
 ```text
 docs/noGHCP/

@@ -361,8 +361,8 @@ state in `src\app.js`, and adjust `styles.css` only if necessary for focus/layou
 query/filter reset across refresh; inspect stored shape for no added fields.
 
 Run base regression tests and B03–B06 again after the change. Review and record
-actual results and any unfinished work; these documents do not certify a
-completed classroom run.
+actual results and any unfinished work; example documents are not evidence
+that your implementation passed these checks.
 
 ## Version-Specific References
 

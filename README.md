@@ -79,7 +79,7 @@ money. The app runs at `http://127.0.0.1:4173` with fictional local data.
 You will practice requirements clarification, threat modeling, architecture
 tradeoffs, test-first implementation, negative/security testing, accessibility
 checks, requirements-to-evidence traceability, and change control. The time
-allocations are **facilitator budgets**, not a guarantee of agent response speed
+allocations are **suggested study times**, not a guarantee of agent response speed
 or a production-readiness certification.
 
 This repository contains teaching documents and a deliberately partial
@@ -197,7 +197,7 @@ For release-specific behavior, prefer frozen source over moving documentation:
 - [Current Spec Kit documentation](https://github.github.io/spec-kit/),
   [VS Code agent security](https://code.visualstudio.com/docs/agents/run/security),
   and [Node.js support status](https://nodejs.org/en/about/previous-releases)
-  are live references. Recheck them before teaching a future cohort.
+  are live references and may describe newer behavior than the pinned release.
 
 ## License
 

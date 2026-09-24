@@ -51,7 +51,7 @@ the exercise first, then compare the solution with your specification.
 | 6. Specify search, implement, hand off | 80 | [Change and handoff](./03-validation-and-handoff.md#checkpoint-6) |
 | **Total** | **390** | **6.5 hours; prework and breaks are additional** |
 
-These are facilitator budgets, not measured completion guarantees. Do not
+These are suggested study times, not completion guarantees. Do not
 bypass a review or hide failures to meet the clock. The route includes
 copyable document templates, concrete test cases, manual coding steps, and
 expected results; no AI-generated intermediate artifact is needed.

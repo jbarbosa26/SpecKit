@@ -17,8 +17,11 @@ Copilot is external: use fictional, non-sensitive content and an approved accoun
 
 ## Route, notation, and safety
 
-These 390 minutes are **facilitator budgets**, not measured completion claims.
+These 390 minutes are **suggested study times**, not completion guarantees.
 Prework and breaks are additional. Never skip review to catch up.
+
+Work alone using the review gates or pair with another student. Record whether
+each review is a self-review or peer review; agent output cannot approve your work.
 
 | Module | Minutes | Elapsed budget | Exit evidence |
 | --- | ---: | --- | --- |
@@ -51,7 +54,7 @@ Prework and breaks are additional. Never skip review to catch up.
   auto-approval, agent/TLS bypass, secrets, MCP, extension/catalog installation,
   cloud actions, or automatic commits/pushes.
 
-Expected outputs are required outcomes, not classroom transcripts. In the generated
+Expected outputs are required outcomes, not pre-recorded results. In the generated
 feature's `quickstart.md`, record requirement, command/action, actual result, date,
 and reviewer. Exclude storage dumps, credentials, and account details.
 
@@ -200,7 +203,8 @@ commands or `--integration-options="--commands"`.
 **If failed:** confirm the opened folder, CLI version, and skill files. Consult the
 [VS Code skills guidance](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
 and reload the editor if needed. If policy blocks scripts, use an approved environment,
-never bypass controls. Preserve partial work/diagnostics for facilitator review.
+never bypass controls. Preserve partial work and non-sensitive diagnostics while
+you resolve the problem.
 
 <a id="module-2"></a>
 ## 2. Constitution and threat boundaries  -  35 minutes
@@ -468,8 +472,9 @@ rerun analysis. Resolve blocking/high findings before module 6. Future execution
 checks stay pending; unresolved requirements-checklist failures cannot be called passes.
 
 **Review gate:** every FR has test tasks; record generated A/B/C task ranges and stops.
-**If failed/time short:** reduce discussion, not controls. Review a partner's passing
-project while recording your own as incomplete. Never copy unreviewed code/delete diagnostics.
+**If failed/time short:** pause and record your work as incomplete until the
+controls pass. You may review a partner's passing project for comparison, but
+do not treat their results as your own. Never copy unreviewed code/delete diagnostics.
 
 <a id="module-6"></a>
 ## 6. Implement three gated slices  -  80 minutes
@@ -735,8 +740,9 @@ lsof -nP -iTCP:4173 -sTCP:LISTEN
 **Expected:** exactly one listener, on **127.0.0.1:4173**. `0.0.0.0`, `*`, `::`,
 or any other address fails the gate even if the page loads. Record the observed
 address and correlate it with your started Node process. If the inspection tool
-is unavailable, use an approved OS equivalent with the facilitator; do not
+is unavailable, use an approved OS equivalent or ask IT for help; do not
 elevate privileges or count an HTTP response as proof of loopback-only binding.
+Keep this check pending until you can inspect the listener.
 In Command Prompt, inspect the **Local Address** and **PID** columns, not the
 foreign address; no matching row is a failure, not a pass. The command includes
 IPv4 and IPv6 listeners so an additional wildcard listener cannot be overlooked.
@@ -905,7 +911,8 @@ access in `src/app.js`**, reload, pause before access, then run:
 
 Resume: accessible load error, blocked writes, no overwrite/writable empty fallback.
 Remove breakpoint and reload; confirm original data remains. If timing is uncertain,
-repeat with the facilitator; unit tests alone cannot pass this UI case.
+repeat the pause/injection sequence and confirm the breakpoint is hit before
+storage access; unit tests alone cannot pass this UI case.
 
 Finally, pause at the same startup breakpoint again and simulate denial of the
 `localStorage` property itself, before `getItem` can even be called:
@@ -923,7 +930,8 @@ uncaught startup exception. Remove the breakpoint and reload to remove the
 override; verify the original saved book is still present.
 
 **Review gate:** record HTTP, named tests, keyboard method and browser results in
-`quickstart.md`. Peer-review DOM sinks, storage catches, routes and package scripts.
+`quickstart.md`. Review DOM sinks, storage catches, routes and package scripts
+yourself or with a peer.
 Fix failures; repeat affected checks plus `npm test` / `npm run check`. Never invent evidence.
 
 ### Preserve a no-commit review baseline
@@ -1038,7 +1046,7 @@ reset the repository, or imply the budget guarantees completion.
 <a id="module-9"></a>
 ## 9. Handoff and stop  -  20 minutes
 
-**Budget:** 8 evidence review, 7 peer handoff, 5 shutdown and reflection.
+**Budget:** 8 evidence review, 7 handoff review, 5 shutdown and reflection.
 
 **Terminal  -  all shells, scratch root**
 ```text
@@ -1074,21 +1082,6 @@ Stop **your** server with Ctrl+C again. Close the disposable profile; optionally
 only it via browser profile management. Preserve scratch files; no broad deletion/Git reset.
 Continue with [brownfield adoption](./04-adapting-existing-projects.md) or
 [SDD concepts](./01-what-is-spec-driven-development.md).
-
-## Instructor rehearsal and recovery
-
-The budget is not a measured classroom result. Rehearse the **entire** path before delivery:
-
-1. Record date and OS/shell/runtime/tool/model versions; verify skills and permissions without bypass.
-2. Use new scratch folder, disposable profile, pinned release; verify manual approval/slice stops.
-3. Execute tests/probe/injections, breakpoints, port and storage failures; record duration/results.
-4. Inspect all required test boundaries, import safety, binding, UUID/schema checks.
-5. Offer reviewed instructor scratch snapshots for inspection without overwriting
-   learner work. Distinguish inherited evidence from personally executed checks.
-6. Add breaks outside 390 minutes. Preserve failures; repair only the affected slice,
-   pair-review or schedule completion. No resets, blanket approvals or fabricated passes.
-
-The [example artifacts](../examples/README.md) are specifications/plans, not a prevalidated application.
 
 ## Frozen sources and further reading
 

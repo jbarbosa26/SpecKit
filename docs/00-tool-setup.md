@@ -310,8 +310,8 @@ specify check
 ```
 
 Require `specify 1.0.1`, Node `v24.x.x`, and the intended executable paths.
-`specify check` reports availability, not account entitlement or a successful
-classroom rehearsal. Missing unused AI tools is not an installation failure.
+`specify check` reports availability, not account entitlement or workshop
+completion. Missing unused AI tools is not an installation failure.
 
 | Symptom | Action |
 | --- | --- |

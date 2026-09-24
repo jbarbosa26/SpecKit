@@ -29,7 +29,7 @@ supplied infrastructure or tested an exercise that remains incomplete.
 | [6. Search and handoff](./03-validation-and-handoff.md#checkpoint-6) | 80 | Reviewed second iteration and handoff |
 
 Total: **390 minutes**, excluding prework/breaks. This document covers the first
-250 minutes. These are facilitator budgets, not a guarantee of completion.
+250 minutes. These are suggested study times, not a guarantee of completion.
 
 ## How to follow the instructions
 
@@ -215,8 +215,9 @@ is first and both remain saved. Status/filter controls are intentionally
 unavailable until the exercise is complete. Search is absent.
 
 Stop your server with Ctrl+C. If port 4173 is occupied, stop only your own earlier
-server, or ask the instructor to resolve the conflict. Do not change the bind
-address, choose another port, or kill an unknown process.
+server. If the listener is not yours, ask IT for help and pause until the port is
+available. Do not change the bind address, choose another port, or kill an
+unknown process.
 
 **Review:** describe what works, what is deliberately missing, and where saved
 data lives. **Failure:** resolve baseline failures before extending it.

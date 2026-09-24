@@ -45,13 +45,13 @@ still requires PowerShell 7 for Spec Kit's Windows helpers.
   verify US1/US2, every FR-001–FR-010, the threat/evidence matrix, strict schema,
   data preservation, text-only rendering, loopback/Host/routes/headers, labels,
   field errors, live feedback, and keyboard criteria. Resolve blocking findings
-  from `/speckit-analyze`; record owner and peer/facilitator review, not agent
+  from `/speckit-analyze`; record self-review or peer review, not agent
   approval. Identify A/B/C task ranges. **Depends on:** reviewed planning inputs.
   **Evidence:** requirement and manual browser scenarios specified before behavior.
 
 ## Module 6 — Three Human-Gated Implementation Slices (80 Minutes)
 
-Budgets **A 15 + B 30 + C 35 = 80 minutes** are facilitator allocations, not
+Budgets **A 15 + B 30 + C 35 = 80 minutes** are suggested study times, not
 completion guarantees. Security/accessibility begin in T001/A; the later
 acceptance module verifies them rather than postponing them as polish.
 
@@ -85,8 +85,8 @@ acceptance module verifies them rather than postponing them as polish.
   no listener on import, and no global storage access in the domain/adapter.
   Compare the exact file/export/script list with `plan.md`. **Depends on:** T004.
   This is a source review, not a passing browser acceptance claim.
-- [ ] **T006 — Human gate A: stop.** Student owner and peer/facilitator review
-  all ten files, the scaffold diff, syntax result, and genuine red evidence.
+- [ ] **T006 — Human gate A: stop.** Review all ten files, the scaffold diff,
+  syntax result, and genuine red evidence, with a peer when available.
   Keep behavior tasks pending. Explicitly authorize B only after setup faults
   are fixed. **Depends on:** T005.
 
@@ -188,8 +188,8 @@ acceptance module verifies them rather than postponing them as polish.
   **FR-007/FR-008/FR-009.**
 - [ ] **T018 — Human gate C: stop.** Review the server/UI/test diff, H01/H02
   red → green, complete current test output, and actual browser results.
-  Only the owner and peer/facilitator can accept this increment. Record missing
-  evidence and repair the slice instead of starting search. **Depends on:** T017.
+  Accept this increment only after recorded self-review or peer review. Record
+  missing evidence and repair the slice instead of starting search. **Depends on:** T017.
 
 ## Module 7 — Base Security and Acceptance (50 Minutes)
 
@@ -312,4 +312,4 @@ differ, so identify the actual slice ranges before invoking `/speckit-implement`
 The whole workshop is **20 + 35 + 45 + 45 + 35 + 80 + 50 + 60 + 20 = 390 minutes**,
 excluding prework and breaks. Read the [walkthrough](../docs/03-walkthrough-and-lab.md)
 for prompts and recovery. Do not skip security, evidence, or human gates to meet
-these unmeasured facilitator budgets.
+these suggested time allocations.

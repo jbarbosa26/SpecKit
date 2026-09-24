@@ -12,7 +12,7 @@ Version-specific workflow references are the [Spec Kit v1.0.1 release](https://g
 
 ### I. Spec-First, Traceable, and Human-Owned
 
-The **student is the owner** of scope and implementation decisions. A **peer or facilitator** reviews the specification, plan, tasks, and evidence. Work MUST trace to an agreed user story or functional requirement. Review the spec, then plan, then tasks **before implementing behavior**; resolve ambiguity instead of allowing an agent to invent scope.
+The **student is the owner** of scope and implementation decisions and reviews the specification, plan, tasks, and evidence, with a peer when available. Record whether each review is a self-review or peer review. Work MUST trace to an agreed user story or functional requirement. Review the spec, then plan, then tasks **before implementing behavior**; resolve ambiguity instead of allowing an agent to invent scope.
 
 Security threats, data-preservation rules, and accessibility acceptance criteria MUST be considered in the constitution/specification and carried into the first implementation slice. A later review module checks them; it does not defer them. Agent analysis assists this review but cannot approve work on a human's behalf.
 
@@ -71,11 +71,11 @@ Provide clear empty-library and no-match states. Check labels, focus, form error
 
 **Search is absent from the base scope.** Introduce it only in the separately reviewed **60-minute second iteration**, amending the existing feature's spec, plan, and tasks rather than opening a new feature directory. Retain the same storage schema and all earlier safeguards.
 
-The whole workshop has nine facilitator budgets: **20 + 35 + 45 + 45 + 35 + 80 + 50 + 60 + 20 = 390 minutes**, excluding prework and breaks. These are planning budgets, not timing guarantees or evidence that an AI-mediated class has been rehearsed. Do not bypass review or safety checks to meet the clock.
+The whole workshop has nine suggested time allocations: **20 + 35 + 45 + 45 + 35 + 80 + 50 + 60 + 20 = 390 minutes**, excluding prework and breaks. These are planning estimates, not timing guarantees. Do not bypass review or safety checks to meet the clock.
 
 ## Development Workflow and Review
 
-1. The student owner and peer/facilitator review the constitution, fictional-data boundary, threats, and accessibility criteria.
+1. Review the constitution, fictional-data boundary, threats, and accessibility criteria; record self-review or peer review.
 2. Use `/speckit-specify` and `/speckit-clarify`, then `/speckit-plan` and `/speckit-tasks`. Review scope, fixed export contracts, dependencies, and test coverage before implementation.
 3. Use `/speckit-analyze` for read-only artifact analysis. It is not an OS sandbox, security audit, or substitute for the human review.
 4. Review proposed commands and permissions, then use `/speckit-implement` for a bounded, test-first slice. Review its diff, observed red → green evidence, regression results, and browser checks before accepting it.
@@ -84,13 +84,13 @@ The whole workshop has nine facilitator budgets: **20 + 35 + 45 + 45 + 35 + 80 +
 
 Inspect **`.specify\feature.json`** to identify the actual feature directory; example paths and supporting research/contracts documents are not guaranteed outputs. Spec Kit v1.0.1 core does not initialize Git or create feature branches, and feature selection is not driven by the current branch.
 
-Local peer/facilitator review is sufficient for the exercise. **Publishing a pull request or issues is not required.** No automatic commits or pushes are permitted; an optional local checkpoint commit in the student's scratch project requires explicit student approval.
+Local self-review or peer review is sufficient for the exercise; record who reviewed the work and the supporting evidence. **Publishing a pull request or issues is not required.** No automatic commits or pushes are permitted; an optional local checkpoint commit in the student's scratch project requires explicit student approval.
 
 ### Human Review Record
 
 Leave this reference unchecked. In a student's copy, record the reviewer and actual evidence only when review occurs.
 
-- [ ] Owner and peer/facilitator reviewed scope, threats, accessibility, and traceability before implementation.
+- [ ] Reviewed scope, threats, accessibility, and traceability before implementation; recorded self-review or peer review.
 - [ ] Spec, plan, tasks, and fixed exports agree, with search excluded from the base.
 - [ ] Behavior tests show legitimate red → green evidence, with regression checks and remaining failures recorded.
 - [ ] Storage corruption and save failures preserve data/state; text rendering and restricted serving were checked.
@@ -99,7 +99,7 @@ Leave this reference unchecked. In a student's copy, record the reviewer and act
 
 ## Governance
 
-These principles govern this illustrative teaching design, not an organizational policy. The student owner proposes amendments with a **rationale and document-version change**, and a peer or facilitator reviews them. Update the constitution and check consistency across the spec, plan, tasks, tests, and implementation before accepting changed behavior.
+These principles govern this illustrative teaching design, not an organizational policy. The student owner proposes amendments with a **rationale and document-version change** and records a self-review or peer review. Update the constitution and check consistency across the spec, plan, tasks, tests, and implementation before accepting changed behavior.
 
 Use MAJOR for principle redefinitions/removals, MINOR for new principles or substantive sections, and PATCH for clarifications. This document's **2.0.0** revision replaces the earlier broader application, logging, and mandatory-PR assumptions with the bounded local-first teaching design and evidence-based review. Its version is independent of **Spec Kit v1.0.1**.
 

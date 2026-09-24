@@ -37,7 +37,7 @@ helpers with `pwsh`; there is no `--script cmd` option.
 Use your employer's approved installation and certificate/proxy configuration.
 Do not pipe a downloaded script directly into a shell, bypass execution policy,
 disable TLS verification, or run the workshop as administrator. If installation
-is blocked by policy, contact the instructor/IT before the session.
+is blocked by policy, contact IT before starting.
 
 Check that your Copilot account has the required capabilities and enough
 requests for an extended lab. A free plan's allowance might not be sufficient.
@@ -174,9 +174,10 @@ You are ready when each item is true:
 - [ ] You have a separate scratch location, no production data/credentials in it,
   and manual approvals enabled.
 
-If any item is blocked, resolve it before attending. An instructor-led paired
-exercise using an approved environment is preferable to bypassing policy. It
-does not count as independently completing the hands-on acceptance checks.
+If any item is blocked, resolve it before starting. Working with a partner in
+an approved environment is preferable to bypassing policy. Record which checks
+you performed yourself; observing a partner does not count as independently
+completing the hands-on acceptance checks.
 
 ## CLI reference
 
@@ -226,7 +227,6 @@ Its `.manual/commands/speckit.<phase>.md` files are guidance, not executable
 slash commands or native `specify` subcommands. Use that series'
 [manual phase equivalents](./noGHCP/README.md#slash-command-phases-and-their-no-ai-equivalents);
 do not execute generated workflows or install an AI interpreter/custom runner.
-Neither route claims a rehearsed end-to-end classroom result.
 Do not mix integration modes or assume every agent has the same permission UI.
 Legacy Copilot commands mode generates `.github/agents/`, `.github/prompts/`,
 and VS Code settings including script auto-approvals; review/remove those

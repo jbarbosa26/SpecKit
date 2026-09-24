@@ -17,7 +17,7 @@ The commands below are **Copilot agent-session skills**, not terminal commands. 
 
 **In the Copilot track's agent chat**, use `/speckit-clarify` to resolve specification ambiguity before planning. After tasks, use `/speckit-analyze` and human review before `/speckit-implement`. Analysis is read-only artifact analysis, **not an operating-system sandbox or proof of safety**. `/speckit-converge` appends remediation tasks rather than changing the application; review those tasks before another implementation slice. In noGHCP, humans perform these reviews and edits; structural helper checks do not assess requirement quality or replace test evidence.
 
-The student owns the decisions; a peer or facilitator reviews the scope, risks, contracts, and evidence. A `[P]` task marker is only a candidate for parallel work: inspect shared files and dependencies first. No command result replaces human review.
+You own the decisions and review the scope, risks, contracts, and evidence, with a peer when available. Record whether each review is a self-review or peer review. A `[P]` task marker is only a candidate for parallel work: inspect shared files and dependencies first. No command result replaces human review.
 
 The examples' `node`, `npm`, and Git terminal commands work unchanged in
 **PowerShell 7, Bash, and Windows Command Prompt (`cmd.exe`)**. For setup,
@@ -51,7 +51,7 @@ The base requirement set is **FR-001–FR-010**: validated add/list, versioned p
 
 ## Workshop budget
 
-The nine modules total **390 minutes (6.5 hours)**: **20 + 35 + 45 + 45 + 35 + 80 + 50 + 60 + 20**. Prework and breaks are excluded. These are facilitator budgets, **not measured completion times or timing guarantees**; agent output and repair time vary.
+The nine modules total **390 minutes (6.5 hours)**: **20 + 35 + 45 + 45 + 35 + 80 + 50 + 60 + 20**. Prework and breaks are excluded. These are suggested study times, **not measured completion times or timing guarantees**; agent output and repair time vary.
 
 | Module | Minutes |
 | --- | ---: |
@@ -66,7 +66,7 @@ The nine modules total **390 minutes (6.5 hours)**: **20 + 35 + 45 + 45 + 35 + 8
 | Handoff | 20 |
 | **Total** | **390** |
 
-The second iteration includes review and tests, not just code generation. If a slice fails, retain non-sensitive diagnostics and repair that slice; do not skip safety gates to meet the clock. Facilitators must rehearse the current agent UI and record model/runtime versions before teaching; this reference is not evidence of a validated full-class run.
+The second iteration includes review and tests, not just code generation. If a slice fails, retain non-sensitive diagnostics and repair that slice; do not skip safety gates to meet the clock.
 
 ## Actual artifact locations
 
@@ -82,7 +82,7 @@ The fresh noGHCP lab explicitly selects `specs\001-booknook`; confirm that `.spe
 
 These checkboxes are intentionally unchecked; only a reviewer with actual evidence should mark their own copy.
 
-- [ ] Student owner and peer/facilitator reviewed the base scope, threats, accessibility, and spec → plan → tasks consistency before implementation.
+- [ ] Reviewed the base scope, threats, accessibility, and spec → plan → tasks consistency before implementation; recorded self-review or peer review.
 - [ ] Fixed export scaffolds and behavior tests demonstrate genuine red → green evidence; import errors were not treated as legitimate red.
 - [ ] Storage preservation, failed-write behavior, inert rendering, restricted serving, refresh persistence, and keyboard/error feedback were exercised.
 - [ ] CR-001 was reviewed separately, its artifacts and tests were updated, and remaining limitations were recorded without certification or completion claims.
