@@ -166,9 +166,7 @@ if exist "%USERPROFILE%\speckit-labs\booknook" (
   echo Stop: existing booknook. Choose another scratch parent.
 ) else (
   if not exist "%USERPROFILE%\speckit-labs" mkdir "%USERPROFILE%\speckit-labs"
-  cd /d "%USERPROFILE%\speckit-labs" && ^
-    specify init booknook --integration copilot --script ps && ^
-    cd booknook && git init && cd && dir /b ".github\skills"
+  cd /d "%USERPROFILE%\speckit-labs" && specify init booknook --integration copilot --script ps && cd booknook && git init && cd && dir /b ".github\skills"
 )
 ```
 
