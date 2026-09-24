@@ -54,9 +54,43 @@ each review is a self-review or peer review; agent output cannot approve your wo
   auto-approval, agent/TLS bypass, secrets, MCP, extension/catalog installation,
   cloud actions, or automatic commits/pushes.
 
-Expected outputs are required outcomes, not pre-recorded results. In the generated
-feature's `quickstart.md`, record requirement, command/action, actual result, date,
-and reviewer. Exclude storage dumps, credentials, and account details.
+Expected outputs are required outcomes, not pre-recorded results. In
+`specs\<feature>\quickstart.md`, requested in module 4, record requirement,
+command/action, actual result, date, and reviewer. Exclude storage dumps,
+credentials, and account details.
+
+### Reading paths in this lab
+
+**Scratch root** means the `booknook` folder you create in module 1, not this
+teaching repository, its `docs` folder, or a feature's `specs` folder. Open that
+same scratch root in VS Code and use it as the working directory for terminal
+commands unless a step explicitly says otherwise.
+
+| Shell | Default scratch-root location after module 1 | Print the current directory |
+| --- | --- | --- |
+| Windows PowerShell 7 | `$HOME\speckit-labs\booknook` | `Get-Location` |
+| Windows Command Prompt | `%USERPROFILE%\speckit-labs\booknook` | `cd` |
+| macOS/Linux Bash | `$HOME/speckit-labs/booknook` | `pwd` |
+
+File references such as `package.json` and `src\domain.js` are **relative to
+that root**. Thus `.\tests\domain.test.js` on Windows and
+`./tests/domain.test.js` in Bash identify the same project-relative test file.
+Keep forward slashes inside JavaScript imports and browser URLs; they are not
+Windows filesystem commands. An import such as `../src/domain.js` is resolved
+relative to the **importing file**, not the terminal's working directory.
+
+After module 3, **`<feature>` is a placeholder for your actual numbered feature
+directory**, not a shell variable or a folder to create literally. For example,
+if `.specify\feature.json` selects `specs/001-library-reading-status`, then
+`specs\<feature>\plan.md` means
+`specs\001-library-reading-status\plan.md`. Your number/name may differ.
+Check the pointer rather than copying that example or inferring it from a Git
+branch.
+
+Links to [reference artifacts](../examples/README.md) open examples in the
+teaching repository. They are comparison material, **not the generated files
+in your scratch project**. The [module 4 file inventory](#file-and-script-contract)
+explains when each application file should appear.
 
 <a id="module-1"></a>
 ## 1. Establish the workspace  -  20 minutes
@@ -177,6 +211,12 @@ if exist "%USERPROFILE%\speckit-labs\booknook" (
 `.github/skills/speckit-<name>/SKILL.md`. Core **does not initialize Git or create
 feature branches**; you explicitly ran `git init`. Do not add a Git extension.
 
+The initializer supplies toolkit templates, helpers, and Copilot skills, not
+the BookNook application. For example, `.specify\templates\plan-template.md`
+is a reusable template; it is not your feature's future
+`specs\<feature>\plan.md`. The ten application/test files, including
+`.\package.json`, are not required to exist until module 6, slice A.
+
 Create this root ignore file in the scratch project. It is repository hygiene,
 not one of the ten application/test files introduced later.
 
@@ -246,6 +286,11 @@ Write .specify/memory/constitution.md and summarize conflicts. Do not implement.
 **Checkpoint:** inspect `.specify/memory/constitution.md` for placeholders/invented approvals.
 Compare the [reference constitution](../examples/constitution.md); do not overwrite your work.
 
+Open `.\.specify\memory\constitution.md` in the scratch project. Module 1
+seeded this file from a template; this step replaces its placeholders with
+your reviewed principles. Do not edit the teaching repository's
+`examples\constitution.md` or the reusable templates under `.specify\templates`.
+
 Sketch these boundaries; record controls and residual risks in the plan when created:
 
 | Boundary / failure | Required control | Residual risk to name |
@@ -308,6 +353,14 @@ Write measurable Given/When/Then acceptance cases with IDs. Do not implement.
 Inspect `.specify/feature.json`: the active-feature selector, **not the Git branch**.
 Record the actual path; keep plan, tasks, checklists and CR-001 in this feature.
 
+In VS Code, open `.\.specify\feature.json` and read its `feature_directory`
+value. If it is relative, resolve it from the scratch root; if it is absolute,
+confirm that it points inside this scratch project. Open `spec.md` in that
+directory. Module 3 creates this feature directory and specification;
+clarification updates the **same** specification rather than creating a
+separate clarification file. Record the real directory name for every
+`specs\<feature>\...` reference below.
+
 **Agent chat  -  clarification**
 ```text
 /speckit-clarify
@@ -337,6 +390,13 @@ and reread them; rerunning `/speckit-specify` may create another feature.
 **Budget:** 20 planning, 15 contract inspection, 10 requirements checklist.
 The static server serves files; it is not a book-data API. Browser persistence is
 not a server database. There is no `npm install` step.
+
+Before sending the prompt, open the reviewed
+`.\.specify\memory\constitution.md` from module 2 and
+`.\specs\<feature>\spec.md` from module 3. Confirm the selection in
+`.\.specify\feature.json` still points to that feature. This step asks the agent
+to write **design documents**, not the JavaScript application described by
+those documents.
 
 **Agent chat  -  implementation plan**
 ```text
@@ -392,14 +452,60 @@ quickstart; label identical commands for all shells and use pwsh for Windows hel
 No OpenAPI. Explain residual risks and security/reliability/operations/performance/cost.
 ```
 
-**Checkpoint:** inspect feature `plan.md`, `research.md`, `data-model.md`, `contracts/`,
-and `quickstart.md`. Contract filenames may vary; exports/behavior may not.
-Compare the [reference plan](../examples/plan.md), especially its test matrix.
+### Planning output locations
+
+**Checkpoint:** inspect the following requested outputs in your selected
+feature directory. Every path in this table is relative to the scratch root;
+substitute the actual `<feature>` name recorded in module 3.
+
+| Relative path | Created or updated by this step | What you should find and review |
+| --- | --- | --- |
+| `specs\<feature>\plan.md` | Main implementation plan | The chosen architecture, ten-file inventory, dependencies, risks, and constitution checks. It explains **how** to satisfy the existing specification. |
+| `specs\<feature>\research.md` | Supporting design decisions | Reasons for the local-only design, built-in Node tools, strict storage handling, and rejected alternatives. It is not permission to add a framework or service. |
+| `specs\<feature>\data-model.md` | Data contract | `{version:1,books:[...]}`, book fields, valid statuses, bounds, and failure rules. It describes browser data; it does not create a database or a saved-data file. |
+| `specs\<feature>\contracts\` | Directory of module contracts | Files documenting the domain/storage exports and static-server behavior. Inspect the actual filenames produced; no particular contract filename is guaranteed. These are documents, not executable modules or an OpenAPI service. |
+| `specs\<feature>\quickstart.md` | Run instructions and evidence record | The three npm commands, shell alternatives, browser checks, and places to record actual outcomes later. Runtime acceptance starts **pending**, not passed. |
+
+These are the outputs requested by **this lab prompt**, not a promise that
+every agent response creates an identical layout. If one is absent or uses a
+different location, inspect the agent's output and request a scoped correction
+or record the agreed actual path in `plan.md`. Do not invent filenames, rerun
+project initialization, or create a second feature to hide a missing output.
+The constitution and specification remain the inputs; application code stays
+unimplemented. Compare the [reference plan](../examples/plan.md), especially
+its export contracts and test matrix.
 
 ### File and script contract
 
-Check all ten files/responsibilities against the plan prompt above. Require this package:
-**File content  -  `package.json`, required content when scaffolded in module 6**
+The following **ten files belong in the scratch project**, not under
+`specs\<feature>`, `.specify\scripts`, or the teaching repository's `examples`
+directory. Module 4 describes them in the plan. Module 6, slice A creates
+their initial scaffolds; later slices implement behavior and extend tests.
+
+| Relative path | Purpose | When to expect meaningful behavior |
+| --- | --- | --- |
+| `package.json` | Node package metadata and the exact three npm scripts below | Slice A supplies the complete file; commands only pass when the files they check or run are ready. |
+| `server.mjs` | Exports `createServer()` and serves only the fixed static routes | Slice A supplies an importable stub; slice C implements serving and direct-run loopback binding. |
+| `index.html` | Page structure: labeled form, book list, filter, and feedback regions | Slice A starts the markup; slice C completes it and connects external CSS/JavaScript. |
+| `styles.css` | Layout, readable feedback, and visible keyboard focus | Slice A starts the stylesheet; slice C completes the accessible presentation. |
+| `src\domain.js` | Pure validation, immutable book updates, and status selection | Slice A exports function stubs; slice B implements the domain rules. |
+| `src\storage.js` | Bounded decoding and an injected storage adapter | Slice A exports stubs plus `STORAGE_KEY`; slice B implements the adapter. |
+| `src\app.js` | Browser event handlers, safe rendering, and save-before-display | Slice A supplies a scaffold; slice C connects the UI to domain/storage functions. |
+| `tests\domain.test.js` | Domain behavior and boundary tests | Replace its slice A scaffold with the first test snippet in module 6, extend in B, then append the search test in module 8. |
+| `tests\storage.test.js` | Storage validation and failure-preservation tests | Slice A creates the scaffold; slice B supplies and extends the second test snippet. |
+| `tests\server.test.js` | Server import, route, Host, method, and header tests | Slice A creates the scaffold; slice C writes meaningful tests before implementing the server. |
+
+The folders `src` and `tests` are siblings at the scratch root. The constitution,
+feature documents, `.gitignore`, and managed Spec Kit scaffolding are **additional
+project files**, not part of this ten-file application count. Book data will
+live in browser storage, not in a new `books.json`, database, or project folder.
+
+Review the following JSON as the contract for **`.\package.json`**. Do not
+paste it into a terminal or create the application early during planning.
+When slice A creates `package.json`, compare that file against this exact
+content and correct deviations before running its scripts.
+
+**File content  -  `.\package.json`, required content when scaffolded in module 6**
 ```json
 {
   "name": "booknook",
@@ -413,6 +519,23 @@ Check all ten files/responsibilities against the plan prompt above. Require this
 }
 ```
 
+`"private": true` tells npm not to publish this package; it is not an access
+control for local files. `"type": "module"` enables `import`/`export` in the
+project's `.js` files, while `.mjs` explicitly identifies the server as an ES
+module. The `node:` imports used later are Node built-ins and need no downloaded
+packages.
+
+Run npm commands from the **scratch root containing this `package.json`**.
+There are no dependency sections, install hooks, build output, or required
+`node_modules` directory. Do not use `npm init` or `npm install` to compensate
+for a missing scaffold.
+
+| Command, all shells | What the package script does | What it does not establish |
+| --- | --- | --- |
+| `npm start` | Runs `node server.mjs` in the foreground; after slice C it listens on `127.0.0.1:4173` until you stop it. | It does not run tests, build the UI, or create book-data files. Do not start it while the server is still a stub. |
+| `npm test` | Runs `node --test`, which discovers the three `tests\*.test.js` files. | Passing Node tests does not prove browser rendering, keyboard behavior, or real browser-storage handling. |
+| `npm run check` | Runs `node --check` on `server.mjs` and the three `src` modules. `&&` stops the sequence if a syntax check fails. | It parses those files; it does not execute application behavior, check HTML/CSS, or replace tests and manual review. |
+
 ### Requirements-quality checklist
 
 **Agent chat  -  checklist**
@@ -425,6 +548,13 @@ read/write failures and preservation, inert rendering, keyboard/live/field feedb
 loopback/Host/method/route/headers, empty/no-match states, scope and manual gates.
 Link findings to FRs/principles. No future-runtime passes, implementation or dependencies.
 ```
+
+Locate the resulting Markdown file under
+`specs\<feature>\checklists\`. Its name depends on the requested checklist
+(for example, `security.md`); inspect the created file rather than assuming
+the filename. Record its actual relative path in your plan/evidence notes.
+Do not edit `.specify\templates\checklist-template.md`, which is reusable
+toolkit scaffolding rather than your completed feature checklist.
 
 **Review gate:** inspect requirements before completing checklist items. "Testable CSP
 requirement?" differs from "CSP passed HTTP tests." **If failed:** repair spec/plan and
@@ -463,9 +593,14 @@ Check exports, three npm scripts, scaffold-before-red and slice dependencies.
 Report severity, locations and corrections; no file edits, code, issues or runtime claims.
 ```
 
-**Checkpoint:** `tasks.md` exists; analysis reports findings, not code. It is not a
+**Checkpoint:** `specs\<feature>\tasks.md` exists; analysis reports findings, not code. It is not a
 sandbox: review tool requests. Omit externally publishing `taskstoissues`.
 `converge`, unnecessary here, appends remediation tasks rather than implementing fixes.
+
+This is the task file created by `/speckit-tasks`, not a root-level `tasks.md`
+or the example in this repository. Its A/B/C ranges will control module 6.
+Keep it beside the existing `spec.md` and `plan.md`; use the actual generated
+task identifiers rather than assuming the reference artifacts' numbering.
 
 Fix each blocker in its artifact manually or via scoped ordinary chat; inspect and
 rerun analysis. Resolve blocking/high findings before module 6. Future execution
@@ -482,6 +617,18 @@ do not treat their results as your own. Never copy unreviewed code/delete diagno
 **Budget:** A 15, B 30, C 35. All terminals/chat/editor use the scratch project.
 Review each command; never approve "continue everything" after a slice.
 
+Before each slice:
+
+1. Open `specs\<feature>\tasks.md` from module 5 and identify that slice's
+   pending task range. The prompts' A/B/C labels refer to these reviewed
+   ranges, not to separate feature directories.
+2. Keep `specs\<feature>\plan.md` and its actual contract files open for
+   comparison. Use the [ten-file inventory](#file-and-script-contract) to
+   distinguish application files from `.specify\scripts` toolkit helpers.
+3. Save edits before running commands at the scratch root. Record the test
+   name, expected result, observed result, and review decision in the existing
+   `specs\<feature>\quickstart.md`; do not mark future checks as passed.
+
 ### Slice A  -  scaffolds and a real red test
 
 **Agent chat  -  gated implementation 1 of 3**
@@ -497,9 +644,18 @@ Do not install anything, start a server, commit or push. Report files changed
 and pending behavioral tasks; request human review before any later slice.
 ```
 
-Inspect all files, including untracked files from `git status --short` absent from
-`git diff`. Confirm module 4 exports; replace `tests/domain.test.js` scaffold below.
-Later tests must extend it, not delete/weaken it.
+Inspect all ten files created by this prompt, including untracked files from
+`git status --short` absent from `git diff`. Check `.\package.json` against
+module 4. An importable function stub throws `Error('not implemented')` when
+called, while `STORAGE_KEY` is already the real string constant; importing
+`server.mjs` must not start a server.
+
+Open **`.\tests\domain.test.js`**, which slice A just scaffolded. Replace only
+its placeholder scaffold with the **complete** next snippet and save it.
+If meaningful tests already exist, preserve them and integrate these cases
+rather than deleting coverage. Do not put this snippet in `src\domain.js`:
+it tests that module; it is not the domain implementation. Missing files or
+folders at this point mean the scaffold step is incomplete.
 
 **File content  -  `tests/domain.test.js`**
 ```javascript
@@ -556,6 +712,22 @@ test('FR-003/004: toggle and filter do not mutate earlier state', () => {
 });
 ```
 
+**How to read this test file**
+
+The `node:test` import supplies the test runner and `node:assert/strict`
+supplies assertions. `../src/domain.js` starts from `tests\domain.test.js`,
+moves up to the scratch root, then enters `src`; keep that import spelling.
+The first test inspects the imported namespace to confirm that all five
+named exports exist before the behavior tests call them.
+
+| Snippet element | Why it is here |
+| --- | --- |
+| `ID` and `ID2` | Fixed, valid UUID v4 fixtures make results repeatable. The actual browser UI generates IDs with `crypto.randomUUID()`; tests do not need randomness. Keep these constants for module 8's appended test. |
+| `structuredClone`, `deepEqual`, and `notStrictEqual` | Compare original values and object identity: an update must return new state without changing the earlier state. The ID-order assertion checks that additions are prepended. |
+| `assert.throws(() => ...)` | Calls invalid operations inside a callback and requires rejection. An always-throwing stub can pass negative cases, so those cases alone are not proof of implementation. |
+| `'\u{1f600}'.repeat(60)` and `repeat(61)` | This character occupies two JavaScript UTF-16 code units. The cases exercise the title's 120-unit boundary, not a byte or visible-character limit. |
+| Status and selection assertions | Require independent old/new states, correct read/unread subsets, a fresh selected array, and errors for unknown IDs or unsupported statuses. |
+
 **Terminal  -  all shells, scratch root**
 ```text
 npm run check
@@ -566,9 +738,18 @@ node --test tests/domain.test.js
 `not implemented`. Record a failure/test name. Missing modules/exports, syntax errors,
 zero tests or deliberate false assertions are **not red**. Repair scaffolds and repeat.
 
+These commands do not create new source files. `npm run check` checks the
+scaffold's syntax; `node --test tests/domain.test.js` runs **only that test
+file**, not storage/server tests or browser checks. Append the observed red
+result to `specs\<feature>\quickstart.md` before requesting implementation.
+
 ### Slice B  -  domain and storage
 
-Paste this second exercise over the scaffold `tests/storage.test.js`.
+Open **`.\tests\storage.test.js`**, also created in slice A. Replace its
+placeholder scaffold with the complete snippet below, preserving any real
+tests already added. Save it separately from `tests\domain.test.js`.
+Its `../src/storage.js` import resolves to the existing sibling `src` folder;
+do not copy test code into `src\storage.js`.
 
 **File content  -  `tests/storage.test.js`**
 ```javascript
@@ -617,12 +798,32 @@ test('FR-006: JSON escaping cannot produce an unreadable successful save', () =>
 });
 ```
 
+**What the storage tests simulate**
+
+These tests run in Node with small **fake storage objects**, not your browser's
+`localStorage`. Their JSON strings are in-memory fixtures, not files to create
+or payloads to paste into the real app.
+
+| Test | Mechanism and required outcome |
+| --- | --- |
+| Only `null` means missing | JavaScript `null` represents an absent key. The strings `''`, `'null'`, and invalid JSON/schema values must not become a successful empty library. |
+| Oversize before parsing | `t.mock.method` temporarily replaces `JSON.parse`. Its call count must stay zero for 100001 code units, proving rejection happens **before** parsing. The test context restores its mock after the test. |
+| Read/write failures propagate | The injected `getItem`/`setItem` methods check the key and throw a specific error. The adapter must propagate it and leave the original value untouched, not report an in-memory save as success. |
+| Escaping cannot produce unreadable saves | Each `\u0001` occupies one input code unit but expands when JSON-encoded. The 200-book fixture exceeds the serialized-output limit even though its fields fit their bounds; `writes` must remain zero. Do not replace it with ordinary letters and lose that boundary case. |
+
 **Terminal  -  all shells**
 ```text
 node --test tests/storage.test.js
 ```
 
 Record a behavioral failure, not an import error. These starter tests are not full coverage.
+
+The next prompt first **extends** `tests\domain.test.js` and
+`tests\storage.test.js`, then implements `src\domain.js` and
+`src\storage.js`. `server.mjs`, `src\app.js`, and
+`tests\server.test.js` still have no completed behavior at this gate.
+Keep the existing tests and public export names; do not add another storage
+module or introduce browser globals into the pure domain/adapter modules.
 
 **Agent chat  -  gated implementation 2 of 3**
 ```text
@@ -655,7 +856,23 @@ git status --short
 storage errors. Empty server tests prove nothing. **If failed:** preserve assertions,
 repair B; do not approve C.
 
+The combined `node --test` command covers the two named test files only.
+`git diff --check` checks patch whitespace, not program correctness;
+`git status --short` also reveals untracked files that a normal diff omits.
+Update only the completed B tasks in `specs\<feature>\tasks.md` and their
+evidence in `specs\<feature>\quickstart.md`.
+
 ### Slice C  -  restricted server and browser UI
+
+This slice completes the files that A scaffolded. The agent must first write
+meaningful **`.\tests\server.test.js`** cases against the importable
+`createServer()` stub in **`.\server.mjs`**, then stop for your review.
+The test import is relative to the test file (typically `../server.mjs`).
+Tests choose temporary loopback ports and close their servers; they do not
+need `npm start` or ownership of the application's fixed port 4173.
+Their accepted requests still send `Host: 127.0.0.1:4173` explicitly: the
+temporary socket port isolates the test, while the Host value exercises the
+application's fixed request-header contract.
 
 **Agent chat  -  gated implementation 3 of 3**
 ```text
@@ -683,6 +900,21 @@ No commits/pushes. STOP at gate.
 After inspecting red tests, approve in ordinary chat: "The reviewed server tests are
 approved; finish only slice C as previously scoped." No weaker tests/future work.
 
+Review the resulting files by responsibility before running the complete suite:
+
+| Relative path | What to inspect in the completed slice |
+| --- | --- |
+| `server.mjs` | A fixed route-to-file map, exact Host/method checks, security headers, and listening only on direct execution. Importing `createServer` must still be safe. |
+| `tests\server.test.js` | Positive and denied requests, correct headers/statuses, and cleanup on failure as well as success. An ephemeral test port does not prove the direct-run server binds safely; module 7 checks that separately. |
+| `index.html` and `styles.css` | External script/style references, matching control labels/IDs, visible focus, and readable errors. Their paths must match the server's allowlist. |
+| `src\app.js` | Imports the existing domain/storage modules, wires controls, renders text safely, and saves a candidate before publishing UI success. A relative `./domain.js` import here stays inside `src`, unlike the tests' `../src/domain.js` import. |
+
+The app's private UI function names and element IDs may differ between agent
+outputs; inspect your generated HTML and JavaScript together rather than
+assuming names from the separate noGHCP starter. The domain/storage exports
+and server contract are fixed. No new backend, build directory, or fourth
+test file is needed.
+
 **Terminal  -  all shells, after code review**
 ```text
 npm test
@@ -703,12 +935,49 @@ again: `npm start` now has an implementation.
 **Budget:** 10 HTTP checks, 15 normal/keyboard behavior, 20 adversarial storage
 checks, 5 review. Keep failures linked to FRs; repair the smallest affected slice.
 
+### Keep the three execution locations separate
+
+1. **Terminal A:** open the scratch root containing `.\package.json` and
+   `.\server.mjs`, completed in module 6. It will run the foreground server.
+2. **Terminal B:** open a second terminal at the **same root**, with the same
+   PATH setup. Use it for listener inspection, the HTTP probe, tests, and Git.
+   Do not type those commands into A while A is running the server.
+3. **Browser DevTools:** use only the disposable profile's page at
+   `http://127.0.0.1:4173`. Browser-console snippets run in that page, not in
+   either terminal and not in a source file.
+
+Save all source edits first. Use the shell's current-directory command from
+[Reading paths](#reading-paths-in-this-lab) if either terminal points elsewhere.
+Record the outcomes manually in the existing
+`specs\<feature>\quickstart.md`. The checks do not write that document for you
+or require new application files.
+
 ### Start and probe the actual server
 
 **Terminal A  -  all shells, scratch root; leave it open**
 ```text
 npm start
 ```
+
+This runs the `start` script in the root `package.json`, which executes
+`server.mjs`. Leave the terminal occupied. Opening `index.html` directly with
+a `file:` URL would bypass the server and its headers and use a different
+storage context; it is not the lab's browser test.
+
+The server's six allowed request targets map to these existing files:
+
+| Browser request path | File relative to the scratch root |
+| --- | --- |
+| `/` and `/index.html` | `index.html` |
+| `/styles.css` | `styles.css` |
+| `/src/app.js` | `src\app.js` |
+| `/src/domain.js` | `src\domain.js` |
+| `/src/storage.js` | `src\storage.js` |
+
+`server.mjs`, `package.json`, `tests\`, `specs\`, `.specify\`, and `.git\`
+are **not** public routes. A request for one of them must not expose its
+contents. All listed source files were scaffolded in A and implemented in
+B/C; the browser URL `/src/app.js` is not a new generated copy of the file.
 
 **Checkpoint:** listen only on `127.0.0.1:4173`. If occupied, find your earlier terminal
 and Ctrl+C your server. Never kill unknown processes, switch ports, or bind `0.0.0.0`.
@@ -746,6 +1015,12 @@ Keep this check pending until you can inspect the listener.
 In Command Prompt, inspect the **Local Address** and **PID** columns, not the
 foreign address; no matching row is a failure, not a pass. The command includes
 IPv4 and IPv6 listeners so an additional wildcard listener cannot be overlooked.
+
+PowerShell wraps the results in `@(...)` so the count check works even for a
+single result; it rejects an additional listener as well as a wrong address.
+The Command Prompt/Bash commands display sockets for you to inspect rather
+than automatically certifying the result. The PID identifies the owning
+process; it is not permission to terminate an unfamiliar process.
 
 This portable Node HTTP probe tests Host/raw paths without browser normalization.
 Run only your shell's variant.
@@ -792,12 +1067,35 @@ Repair failed requirements/tests, never loosen assertions. Server tests addition
 cover missing/duplicate Host. The OS listener check, not this HTTP probe or a
 factory test's chosen address, verifies the direct-run binding.
 
+**How the HTTP probe works**
+
+| Part of the snippet | Explanation |
+| --- | --- |
+| `node --input-type=module -e` | Evaluates the quoted JavaScript directly in Node, with ES-module imports and top-level `await`. It does not create a probe file or belong in `server.mjs` or `tests\server.test.js`. |
+| `probe(path, method, host)` | Sends a real request to the already-running server and collects its status, headers, and body. Raw request paths are retained so traversal/encoding cases are not normalized away by a browser. |
+| Error handler and 3000 ms timeout | Network errors and stalled requests fail the check instead of counting as successful denials or waiting forever. |
+| `q` and `expected` | Build the quoted CSP directives and compare their sorted values. Sorting allows directive ordering to differ, not the policy's contents. `nosniff` and `no-referrer` are checked separately. |
+| Allowed-route loop and `HEAD` | Require each allowed GET to succeed and the root HEAD response to have no body. The denied-request loop requires a 4xx result; the module 6 server tests cover the more specific status/header contracts and malformed Host cases. |
+| Command Prompt's `p` | Builds the percent sign used in encoded paths without letting `cmd.exe` treat it as environment-variable syntax. The single-line command performs the same checks as the multiline variant. |
+
+Assertions stop the probe with a failure rather than printing `PASS`.
+Neither variant changes browser storage. Record the command variant, outcome,
+and any failing case in `specs\<feature>\quickstart.md`, not a fabricated
+transcript or a new application log file.
+
 ### Normal behavior and keyboard
 
 Create a **disposable local browser profile** via the profile menu; no sign-in/sync,
 fictional data only. Open `http://127.0.0.1:4173`, not `localhost`, and retain it
 across refreshes. Use **one application tab**: concurrent-tab conflict resolution
 is outside this design. Inspect DevTools failures without copying raw storage data.
+
+In DevTools, browser JavaScript appears under the page's origin and `src`
+paths; these correspond to the scratch project's `src\*.js` files.
+The Application/Storage panel's **Local Storage -> `http://127.0.0.1:4173`**
+contains the `booknook:v1` key. Panel names vary slightly by browser.
+That key is browser-profile data, **not a file under `src`, `specs`, or the
+project root**. Refreshing or restarting Node does not clear it.
 
 | Action, in order | Expected evidence |
 | --- | --- |
@@ -832,8 +1130,18 @@ if (confirm('Remove ONLY booknook:v1 fictional lab data in this disposable profi
 }
 ```
 
+The origin guard prevents the reset from running against a different origin;
+it does not identify the browser profile, so confirm the disposable one first.
+`confirm` asks permission before discarding the fictional library;
+`removeItem` removes only this application's key, and reload exercises the
+normal missing-key startup path. Cancelling leaves the value unchanged:
+do not then run a replacement fixture as though you had consented.
+No project file is deleted or rewritten.
+
 Reset before each fixture. If paste is blocked, read/type the fixture or use the
 storage editor; never disable protection or paste unknown website code.
+Before every other console snippet, confirm the selected page still has the
+exact lab origin; the snippets below do not repeat the reset's origin guard.
 
 **Browser console  -  200 valid books (FR-005)**
 ```javascript
@@ -845,6 +1153,14 @@ localStorage.setItem('booknook:v1', JSON.stringify({
 }));
 location.reload();
 ```
+
+`Array.from` builds 200 valid fictional records, with generated UUIDs and
+numbered titles. `JSON.stringify` serializes the versioned envelope;
+`localStorage.setItem` writes it directly to the browser key, deliberately
+bypassing the add form so you can test loading at the capacity boundary.
+Reload then sends that stored value through your
+application's normal load/validation path. Do not save this snippet as a
+seed script or introduce a `books.json` file.
 
 Try adding book 201: visible cap feedback, 200 rows, unchanged storage, no eviction.
 Toggle/filter still work. Tests must reject persisted 201-entry states without truncation.
@@ -867,6 +1183,12 @@ localStorage.setItem('booknook:v1', JSON.stringify({
 location.reload();
 ```
 
+This fixture is **valid data with HTML-looking text**, unlike the corrupt
+fixtures that follow. It must pass schema validation and render literally.
+Inspect `src\app.js` for safe text insertion; there must not be an `img`
+element created from the title. This separates safe rendering from CSP
+merely blocking an injected handler.
+
 Expect inert text/no injected elements. In the storage editor add an unexpected
 book property and refresh: corruption error, blocked writes, unchanged bytes,
 **not** removed properties or an empty successful library.
@@ -875,6 +1197,12 @@ Reset before each case: set empty string, malformed `{`, wrong version, duplicat
 IDs, or invalid status in the storage editor, then refresh. All are errors;
 **deleting only the key** gives empty state. Record named tests for string/UUID
 bounds, 201 entries and 100000/100001 pre-parse limits alongside browser evidence.
+
+Use the Application/Storage panel to edit the **value of `booknook:v1`** for
+these corruption cases. Do not alter `specs\<feature>\data-model.md` to make
+bad input acceptable: that file records the intended contract. If a case fails,
+trace decoding in `src\storage.js`, schema validation in `src\domain.js`, and
+the visible load-error/write-blocking behavior in `src\app.js`.
 
 ### Storage failure without false success
 
@@ -892,11 +1220,29 @@ Inject a write failure only for this key:
 })();
 ```
 
+The immediately invoked function keeps the original method in a local
+variable, then replaces `Storage.prototype.setItem` for the current page.
+Only writes to `booknook:v1` throw the simulated `QuotaExceededError`; other
+keys call the original method with its proper receiver. This simulates a
+failed save without filling the browser's quota. **Do not paste it into
+`src\storage.js` or commit the injected failure to application code.**
+
 Try add and toggle: accessible errors, unchanged displayed/stored state, preserved
 input, no success message. Reload to remove the override; confirm the original remains.
 
 For read failure, set a DevTools Sources breakpoint at the **first startup storage
 access in `src/app.js`**, reload, pause before access, then run:
+
+1. In Sources, open the page resource
+   `http://127.0.0.1:4173/src/app.js`, corresponding to the scratch file
+   `.\src\app.js` completed in slice C.
+2. Locate the first startup expression that reads `window.localStorage` or
+   passes it to `loadState`. Generated line numbers vary; set a breakpoint
+   **before that expression executes**, not in a later add/toggle handler.
+3. Reload and confirm execution pauses there. While paused, use the page's
+   Console to run the following snippet, then resume execution.
+4. Observe the load error and disabled mutations. Remove the breakpoint and
+   reload before the next independent injection.
 
 **Browser console  -  paused startup read-failure injection (FR-006)**
 ```javascript
@@ -908,6 +1254,12 @@ access in `src/app.js`**, reload, pause before access, then run:
   };
 })();
 ```
+
+This wrapper changes reads, not saved bytes. Throwing from `getItem` checks
+that `loadState` in `src\storage.js` propagates the failure and startup code
+in `src\app.js` reports it instead of enabling a writable empty list.
+Running it only after the application has already loaded would not exercise
+this startup case.
 
 Resume: accessible load error, blocked writes, no overwrite/writable empty fallback.
 Remove breakpoint and reload; confirm original data remains. If timing is uncertain,
@@ -925,13 +1277,19 @@ Object.defineProperty(window, 'localStorage', {
 });
 ```
 
+The accessor throws when the application first tries to obtain
+`window.localStorage`, before it can call `getItem`. This tests a different
+failure boundary from the previous snippet. Reload removes either temporary
+JavaScript override; neither is a source-file edit or
+permission to erase the stored library.
+
 Resume: require the same accessible load error and blocked writes, not an
 uncaught startup exception. Remove the breakpoint and reload to remove the
 override; verify the original saved book is still present.
 
 **Review gate:** record HTTP, named tests, keyboard method and browser results in
-`quickstart.md`. Review DOM sinks, storage catches, routes and package scripts
-yourself or with a peer.
+`specs\<feature>\quickstart.md`. Review DOM sinks, storage catches, routes and
+package scripts yourself or with a peer.
 Fix failures; repeat affected checks plus `npm test` / `npm run check`. Never invent evidence.
 
 ### Preserve a no-commit review baseline
@@ -940,6 +1298,14 @@ After the base passes human review, stage **only the reviewed scratch files**
 below. Inspect their contents for secrets first; do not use `git add .`.
 This snapshots them in the local Git index without making a commit or publishing
 anything. It lets the next module's `git diff` show what CR-001 actually changes.
+
+The staged paths have different origins: `.gitignore`, `.github\skills\`,
+and managed `.specify\` scaffolding came from module 1 and your later
+constitution edits; `specs\<feature>\` contains the module 3-5 artifacts
+and evidence; the ten application/test files came from module 6. Inspect
+the directory contents before staging them. Preserve
+`.specify\.gitignore` so the local `.specify\feature.json` pointer remains
+ignored; if it appears in the staged files, stop and investigate.
 
 **Terminal  -  all shells, scratch root only**
 ```text
@@ -955,6 +1321,12 @@ untracked files. Do not stage further changes or let the agent stage them until
 CR-001 review is complete. This index snapshot is a comparison aid, not a backup
 of browser data or a replacement for durable version history.
 
+`git add` writes Git's local index (`.git\index` in this scratch repository);
+do not edit that file manually. `--cached` compares the index with the last
+commit, or shows staged additions if there are no commits yet. The final
+`--exit-code` command compares working files with the index, **not untracked
+files**. That is why the separate status/file inspection is still necessary.
+
 <a id="module-8"></a>
 ## 8. Controlled change: search  -  60 minutes
 
@@ -964,9 +1336,33 @@ Search is not permission to redesign.
 Use ordinary agent chat for the artifact amendment below. Do **not** invoke
 `/speckit-specify`: CR-001 extends the existing selected feature.
 
+### Identify the existing files to change
+
+Reopen the root `.\.specify\feature.json` and confirm it still selects the
+same `specs\<feature>` directory from module 3. The pointer is **not inside
+that feature directory** and should not change for CR-001. There is no new
+`CR-001` folder or separate `clarifications.md`: clarification decisions stay
+in the existing specification.
+
+| Relative path | Change-control action |
+| --- | --- |
+| `specs\<feature>\spec.md` | Append/reconcile US3, FR-011, clarification decisions, and measurable search acceptance cases; preserve FR-001-010. |
+| `specs\<feature>\plan.md` | Explain the small selection/UI change and compatibility with the existing application. |
+| `specs\<feature>\data-model.md` and the actual files under `specs\<feature>\contracts\` | Update the existing selection contract while explicitly preserving the saved schema. Amend only supporting documents actually produced in module 4. |
+| `specs\<feature>\tasks.md` | Append dependent, test-first CR-001 tasks; retain completed base tasks and their evidence. |
+| `specs\<feature>\quickstart.md` and the actual checklist file under `specs\<feature>\checklists\` | Add pending search/regression evidence and review questions. Record results only after performing them. |
+| `tests\domain.test.js` | After artifact review, append the test below to the file created in module 6. |
+| `src\domain.js`, `src\app.js`, and `index.html` | Only after red evidence and approval: extend selection, wire transient query state, and add the labeled control. Change `styles.css` only if needed for its presentation/focus. |
+
+No functional change is needed in `src\storage.js`, `server.mjs`, or
+`package.json`. Search is an in-memory view over the existing books, not an
+API, persisted setting, dependency, or schema migration. Keep the staged
+module 7 baseline intact while these edits remain in the working files.
+
 **Agent chat  -  change-control request, no implementation**
 ```text
-CR-001: extend existing feature/directory/.specify/feature.json selection.
+CR-001: extend the existing feature selected by the root .specify/feature.json.
+Keep that selection and feature directory unchanged.
 US3/FR-011: title OR author case-insensitive substring search; trim query;
 blank matches all; AND with status; never persist query. Labeled keyboard search
 and accessible no-match feedback.
@@ -994,7 +1390,13 @@ backward-compatible selectBooks calls. Preserve FR-001..010 and all safety gates
 Report conflicts/missing tests, do not implement or modify files.
 ```
 
-Resolve blockers; append this to `tests/domain.test.js`, reusing its imports/IDs.
+Resolve blockers, then open **`.\tests\domain.test.js`** and append this
+test **after the existing tests**, at module scope. Reuse the imports,
+`ID`, `ID2`, and domain-function bindings from module 6's first snippet;
+do not paste a second set of imports/constants or nest this inside another
+test. If those names are missing, inspect how the earlier snippet was
+integrated before proceeding. Do not replace the file or create
+`specs\<feature>\tests\domain.test.js`.
 
 **File content  -  append to `tests/domain.test.js`**
 ```javascript
@@ -1011,6 +1413,21 @@ test('FR-011: search combines title OR author with status AND', () => {
 });
 ```
 
+The fixture makes Orbit/Ada read and leaves the newer River/Lin book unread.
+Each assertion tests a distinct part of FR-011:
+
+| Query/options in the snippet | Requirement being checked |
+| --- | --- |
+| `' ADA '` and `'orb'` | Trim/case-normalize the query and match **author OR title** by substring. |
+| `status: 'unread', query: 'Ada'` | Combine the text match with status using **AND**; a read book must not leak into the unread view. |
+| `status: 'read', query: 'ada'` | The same title/author match is included when status agrees. |
+| Whitespace-only query | A blank query matches the original no-query selection; old calls remain compatible. |
+| `'absent'` and `'.*'` | A genuine nonmatch is empty, and punctuation is literal text rather than a regular expression. |
+
+The `.map(b => b.id)` assertions compare which fixture books were selected;
+they do not change book IDs or stored data. These are Node domain tests,
+not browser tests of the new control.
+
 **Terminal  -  all shells, scratch root**
 ```text
 node --test tests/domain.test.js
@@ -1018,6 +1435,11 @@ node --test tests/domain.test.js
 
 **Expected red:** search fails, baseline stays green. Unexpected pass? Inspect for
 search slipping into the base slice; record scope breach, never invent red results.
+
+Before implementation, a status-only `selectBooks` may ignore or reject the
+new `query` option. A failure caused by that missing behavior is legitimate
+red; a missing `ID`, syntax error, or wrong import path is a test-setup fault.
+Record the observed failing assertion in `specs\<feature>\quickstart.md`.
 
 **Agent chat  -  approved change implementation**
 ```text
@@ -1032,6 +1454,19 @@ human review. No commits/pushes.
 Do not stage changes; retain the reviewed index baseline for the final diff.
 ```
 
+Inspect the resulting `src\domain.js` function and the matching control in
+`index.html`/`src\app.js` together. The label's target and event-handler
+lookup must refer to the same element. Query/filter values belong in UI
+memory only; the existing save-before-display and failed-load gates must
+remain intact. Do not copy private UI identifiers from the noGHCP starter
+into an unrelated agent-generated implementation.
+
+Save the files and reload the application to load the updated browser
+modules. Reuse the server already running in Terminal A; do not start a
+second instance. If a server restart is needed, stop only that instance
+first. Record the earlier fixture evidence, then use module 7's consented
+key-only reset before setting up the two-book browser scenario below.
+
 **Regression gate:** rerun `npm test`, `npm run check`, and the module 7 HTTP probe.
 In the disposable profile create `Orbit`/`Ada` (read), `River`/`Lin` (unread).
 Search ` ADA ` and `orb`; expect Orbit. Combine `ada` with unread: no match.
@@ -1039,7 +1474,10 @@ Blank the query: status filtering still works. Search `.*`: literal no match.
 Refresh: books/status persist, query is blank, filter is all. Repeat keyboard,
 inert-text and write-failure checks; inspect storage to confirm no query field.
 
-Record CR-001 red/green/browser evidence; reject unrelated diffs. **If failed/time
+Append CR-001 red/green/browser results to the existing
+`specs\<feature>\quickstart.md` without replacing base evidence, and update
+only the supported CR-001 task statuses in `specs\<feature>\tasks.md`.
+Keep incomplete checks pending and reject unrelated diffs. **If failed/time
 short:** retain baseline evidence, mark CR-001 incomplete. Never remove failures,
 reset the repository, or imply the budget guarantees completion.
 
@@ -1047,6 +1485,43 @@ reset the repository, or imply the budget guarantees completion.
 ## 9. Handoff and stop  -  20 minutes
 
 **Budget:** 8 evidence review, 7 handoff review, 5 shutdown and reflection.
+
+### Assemble the handoff from existing files
+
+There is no new handoff document to generate. Use the existing
+`specs\<feature>\quickstart.md` as the entry point, and record the actual
+relative paths if any supporting artifact has a different name.
+
+| Relative path or group | Origin and handoff purpose |
+| --- | --- |
+| `.specify\memory\constitution.md` | Seeded in module 1 and authored in module 2; identifies the governing constraints and human decisions. |
+| `.specify\feature.json` | Local selector written during module 3; verify it still selects the reviewed feature. Keep it ignored, and record the actual feature directory in the quickstart rather than staging the pointer. |
+| `specs\<feature>\spec.md` | Module 3 requirements plus module 8's CR-001 amendment; distinguishes accepted base behavior from the later change. |
+| `specs\<feature>\plan.md`, `specs\<feature>\research.md`, `specs\<feature>\data-model.md`, and `specs\<feature>\contracts\` | Module 4 design artifacts, updated where CR-001 affected them. List the actual supporting filenames; do not claim absent outputs exist. |
+| `specs\<feature>\checklists\` | Module 4's requirements-quality checklist(s), reviewed again for the change; not a substitute for executable evidence. |
+| `specs\<feature>\tasks.md` | Module 5 tasks and later status/change updates; completed boxes must map to observed evidence. |
+| `specs\<feature>\quickstart.md` | Module 4 run/evidence document, filled throughout modules 6-9; includes environment, commands, expected/actual results, review method, and remaining work. |
+| The [ten application/test paths](#file-and-script-contract) at the scratch root, under `src\`, and under `tests\` | Scaffolds from module 6, completed there and amended in module 8. These are the files another reader runs, not the reference artifacts in this teaching repository. |
+| `.gitignore`, `.specify\.gitignore`, `.github\skills\`, and the remaining managed `.specify\` scaffolding | Reviewed setup from module 1; preserve it and its ignore rules without treating generated instructions as test evidence. |
+
+In `specs\<feature>\quickstart.md`, record your OS/shell, CLI/Node versions,
+browser, and agent/model used without account details. Each result needs an
+actual date and self/peer reviewer. The following is an **evidence-row format**,
+not a claim that either example has passed; fill it with your own observations:
+
+| Requirement | Relative file or action | Expected | Actual result/date/reviewer | Status or remaining gap |
+| --- | --- | --- | --- | --- |
+| FR-006 | `tests\storage.test.js`; module 7 save-failure UI exercise | Failed saves preserve data and show an error | Record the named test and separate browser observation | Not run / passed / failed, based on evidence |
+| FR-011 | `tests\domain.test.js`; combined search/status browser exercise | Title OR author, AND status; query not persisted | Record red, green, and browser outcomes separately | Not run / passed / failed, based on evidence |
+
+Do not copy the rows as pre-filled success, paste raw storage payloads, or add
+extra application files just to store results.
+
+### Review the base and change separately
+
+Run these commands in Terminal B at the scratch root while Terminal A can
+still serve the app. They print results/diffs; they do not generate a build,
+create evidence files, stage changes, or make a commit.
 
 **Terminal  -  all shells, scratch root**
 ```text
@@ -1062,6 +1537,13 @@ module 7 index snapshot; `git diff --cached` shows the staged base. Neither diff
 alone includes both. No commit is required.
 Later scratch-project checkpoint commits require separate, explicit approval.
 
+In `git status --short`, the first status column describes the index and the
+second describes working-file changes. For example, `AM` can mean a new
+baseline file was staged in module 7 and then modified for CR-001; `??` means
+an untracked file that neither diff includes. Read the actual files as well
+as both diffs. Do not run `git add` now just to make the working tree look
+clean: that would replace the comparison baseline.
+
 Handoff checklist:
 
 - The constitution, selected feature spec, clarifications, plan/contracts, checklist,
@@ -1074,12 +1556,29 @@ Handoff checklist:
 - Unfinished work is explicitly pending; nobody claims production readiness,
   WCAG certification, Azure deployment, secure backup, or multi-user isolation.
 
-Ctrl+C the existing server in Terminal A, then demonstrate a cold start there:
-`npm start`, exact origin, add/toggle/search, and a named test in Terminal B.
-Explain save-before-display, strict storage schema and redesign needed for real data.
+### Demonstrate a cold start and stop cleanly
+
+1. Press Ctrl+C in the **existing server's Terminal A**. Remain at the scratch
+   root containing the reviewed `package.json` and `server.mjs`.
+2. Run `npm start` there again. In Terminal B, repeat module 7's listener
+   inspection and your shell's HTTP probe; this checks the restarted process,
+   not just the earlier test server.
+3. Reload the disposable profile at `http://127.0.0.1:4173` and demonstrate
+   add/toggle/search. A Node restart does not clear browser storage; use only
+   the explicit consented reset if you need a fresh fictional fixture.
+4. In Terminal B, rerun `node --test tests/domain.test.js` and identify the
+   FR-011 result. Keep the full-suite results above as separate evidence.
+   Record the demonstration in `specs\<feature>\quickstart.md`.
+5. Explain how `src\app.js` saves before showing success, how
+   `src\storage.js`/`src\domain.js` reject invalid state, and why real-data use
+   would require redesign rather than simply exposing this local server.
 
 Stop **your** server with Ctrl+C again. Close the disposable profile; optionally remove
 only it via browser profile management. Preserve scratch files; no broad deletion/Git reset.
+Recheck the listener to confirm your server is no longer listening. A
+no-listener result (including PowerShell's no-matching-object error) is expected
+for this shutdown check, not for module 7's running-server gate. Do not terminate
+an unfamiliar process if the port is subsequently used by something else.
 Continue with [brownfield adoption](./04-adapting-existing-projects.md) or
 [SDD concepts](./01-what-is-spec-driven-development.md).
 
